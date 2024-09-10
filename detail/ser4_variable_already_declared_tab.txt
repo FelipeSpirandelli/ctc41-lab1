@@ -1,0 +1,10 @@
+Semantic error at line 4: 'a' was already declared as a variable
+
+Symbol table:
+
+Variable Name  Scope     ID Type  Data Type  Line Numbers
+-------------  --------  -------  ---------  -------------------------
+a              main      var      int         3 
+main                     fun      void        1 
+input                    fun      int        
+output                   fun      void       

@@ -1,0 +1,111 @@
+
+TINY COMPILATION: ../example/ser6_main_undefined.cm
+1: int funOne(void) { 
+	1: reserved word: int
+	1: ID, name= funOne
+	1: (
+	1: reserved word: void
+	1: )
+	1: {
+2:     output(1);
+	2: ID, name= output
+	2: (
+	2: NUM, val= 1
+	2: )
+	2: ;
+3: }
+	3: }
+4: 
+5: int funTwo(void) {
+	5: reserved word: int
+	5: ID, name= funTwo
+	5: (
+	5: reserved word: void
+	5: )
+	5: {
+6:     output(2);
+	6: ID, name= output
+	6: (
+	6: NUM, val= 2
+	6: )
+	6: ;
+7: }
+	7: }
+8: 
+9: int funThree(void) {
+	9: reserved word: int
+	9: ID, name= funThree
+	9: (
+	9: reserved word: void
+	9: )
+	9: {
+10:     output(3);
+	10: ID, name= output
+	10: (
+	10: NUM, val= 3
+	10: )
+	10: ;
+11: }
+	11: }
+	11: EOF
+
+Syntax tree:
+Declare function (return type "int"): funOne
+    Function call: output
+        Const: 1
+Declare function (return type "int"): funTwo
+    Function call: output
+        Const: 2
+Declare function (return type "int"): funThree
+    Function call: output
+        Const: 3
+
+Building Symbol Table...
+
+Symbol table:
+
+Variable Name  Scope     ID Type  Data Type  Line Numbers
+-------------  --------  -------  ---------  -------------------------
+funTwo                   fun      int         5 
+input                    fun      int        
+funOne                   fun      int         1 
+output                   fun      void        2  6 10 
+funThree                 fun      int         9 
+
+Checking Types...
+
+Type Checking Finished
+
+Checking for main...
+Semantic error: undefined reference to 'main'* TINY Compilation to TM Code
+* Standard prelude:
+  0:     LD  6,0(0) 	load maxaddress from location 0
+  1:     LD  2,0(0) 	load maxaddress from location 0
+  2:     ST  0,0(0) 	clear location 0
+* End of standard prelude.
+* -> Init Function (funOne)
+  4:     ST  0,-1(2) 	store return address from ac
+* -> Function Call (output)
+* -> Const
+  5:    LDC  0,1(0) 	load const
+* <- Const
+  6:    OUT  0,0,0 	print value
+* <- End Function
+* -> Init Function (funTwo)
+  7:     ST  0,-1(2) 	store return address from ac
+* -> Function Call (output)
+* -> Const
+  8:    LDC  0,2(0) 	load const
+* <- Const
+  9:    OUT  0,0,0 	print value
+* <- End Function
+* -> Init Function (funThree)
+ 10:     ST  0,-1(2) 	store return address from ac
+* -> Function Call (output)
+* -> Const
+ 11:    LDC  0,3(0) 	load const
+* <- Const
+ 12:    OUT  0,0,0 	print value
+* <- End Function
+* End of execution.
+ 13:   HALT  0,0,0 	

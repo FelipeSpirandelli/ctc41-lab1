@@ -1,0 +1,16 @@
+
+Symbol table:
+
+Variable Name  Scope     ID Type  Data Type  Line Numbers
+-------------  --------  -------  ---------  -------------------------
+gdc                      fun      int         3 10 21 
+r              gdc       var      int         6  9 10 
+main                     fun      void       15 
+u              gdc       var      int         3  9 10 
+input                    fun      int        19 20 
+y              main      var      int        18 20 21 
+x              gdc       var      int         5  8 12 
+output                   fun      void       22 
+v              gdc       var      int         3  9 10 
+x              main      var      int        17 19 21 22 
+y              gdc       var      int         7  8 12 

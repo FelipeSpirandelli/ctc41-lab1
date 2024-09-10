@@ -1,0 +1,829 @@
+0a1,828
+> 
+> TINY COMPILATION: ../example/sort.cm
+> 1: /* ordenacao por selecao */
+> 2: int x[10];
+> 	2: reserved word: int
+> 	2: ID, name= x
+> 	2: [
+> 	2: NUM, val= 10
+> 	2: ]
+> 	2: ;
+> 3: 
+> 4: int minloc ( int a[], int low, int high ){
+> 	4: reserved word: int
+> 	4: ID, name= minloc
+> 	4: (
+> 	4: reserved word: int
+> 	4: ID, name= a
+> 	4: [
+> 	4: ]
+> 	4: ,
+> 	4: reserved word: int
+> 	4: ID, name= low
+> 	4: ,
+> 	4: reserved word: int
+> 	4: ID, name= high
+> 	4: )
+> 	4: {
+> 5:     int i; int x; int k;
+> 	5: reserved word: int
+> 	5: ID, name= i
+> 	5: ;
+> 	5: reserved word: int
+> 	5: ID, name= x
+> 	5: ;
+> 	5: reserved word: int
+> 	5: ID, name= k
+> 	5: ;
+> 6:     k = low;
+> 	6: ID, name= k
+> 	6: =
+> 	6: ID, name= low
+> 	6: ;
+> 7:     x = a[low];
+> 	7: ID, name= x
+> 	7: =
+> 	7: ID, name= a
+> 	7: [
+> 	7: ID, name= low
+> 	7: ]
+> 	7: ;
+> 8:     i = low + 1;
+> 	8: ID, name= i
+> 	8: =
+> 	8: ID, name= low
+> 	8: +
+> 	8: NUM, val= 1
+> 	8: ;
+> 9:     while(i<high){
+> 	9: reserved word: while
+> 	9: (
+> 	9: ID, name= i
+> 	9: <
+> 	9: ID, name= high
+> 	9: )
+> 	9: {
+> 10:         if(a[i] < x){
+> 	10: reserved word: if
+> 	10: (
+> 	10: ID, name= a
+> 	10: [
+> 	10: ID, name= i
+> 	10: ]
+> 	10: <
+> 	10: ID, name= x
+> 	10: )
+> 	10: {
+> 11:             x = a[i];
+> 	11: ID, name= x
+> 	11: =
+> 	11: ID, name= a
+> 	11: [
+> 	11: ID, name= i
+> 	11: ]
+> 	11: ;
+> 12:             k = i;
+> 	12: ID, name= k
+> 	12: =
+> 	12: ID, name= i
+> 	12: ;
+> 13:         }
+> 	13: }
+> 14:         i = i + 1;
+> 	14: ID, name= i
+> 	14: =
+> 	14: ID, name= i
+> 	14: +
+> 	14: NUM, val= 1
+> 	14: ;
+> 15:     }
+> 	15: }
+> 16:     return k;
+> 	16: reserved word: return
+> 	16: ID, name= k
+> 	16: ;
+> 17: }
+> 	17: }
+> 18: 
+> 19: void sort(int a[], int low, int high){
+> 	19: reserved word: void
+> 	19: ID, name= sort
+> 	19: (
+> 	19: reserved word: int
+> 	19: ID, name= a
+> 	19: [
+> 	19: ]
+> 	19: ,
+> 	19: reserved word: int
+> 	19: ID, name= low
+> 	19: ,
+> 	19: reserved word: int
+> 	19: ID, name= high
+> 	19: )
+> 	19: {
+> 20:     int i; int k;
+> 	20: reserved word: int
+> 	20: ID, name= i
+> 	20: ;
+> 	20: reserved word: int
+> 	20: ID, name= k
+> 	20: ;
+> 21:     i = low;
+> 	21: ID, name= i
+> 	21: =
+> 	21: ID, name= low
+> 	21: ;
+> 22:     while(i < high - 1 ) {
+> 	22: reserved word: while
+> 	22: (
+> 	22: ID, name= i
+> 	22: <
+> 	22: ID, name= high
+> 	22: -
+> 	22: NUM, val= 1
+> 	22: )
+> 	22: {
+> 23:         int t;
+> 	23: reserved word: int
+> 	23: ID, name= t
+> 	23: ;
+> 24:         k = minloc(a,i,high);
+> 	24: ID, name= k
+> 	24: =
+> 	24: ID, name= minloc
+> 	24: (
+> 	24: ID, name= a
+> 	24: ,
+> 	24: ID, name= i
+> 	24: ,
+> 	24: ID, name= high
+> 	24: )
+> 	24: ;
+> 25:         t = a[k];
+> 	25: ID, name= t
+> 	25: =
+> 	25: ID, name= a
+> 	25: [
+> 	25: ID, name= k
+> 	25: ]
+> 	25: ;
+> 26:         a[k] = a[i];
+> 	26: ID, name= a
+> 	26: [
+> 	26: ID, name= k
+> 	26: ]
+> 	26: =
+> 	26: ID, name= a
+> 	26: [
+> 	26: ID, name= i
+> 	26: ]
+> 	26: ;
+> 27:         a[i] = t;
+> 	27: ID, name= a
+> 	27: [
+> 	27: ID, name= i
+> 	27: ]
+> 	27: =
+> 	27: ID, name= t
+> 	27: ;
+> 28:         i = i + 1;
+> 	28: ID, name= i
+> 	28: =
+> 	28: ID, name= i
+> 	28: +
+> 	28: NUM, val= 1
+> 	28: ;
+> 29:     }
+> 	29: }
+> 30: }
+> 	30: }
+> 31: 
+> 32: void main(void){
+> 	32: reserved word: void
+> 	32: ID, name= main
+> 	32: (
+> 	32: reserved word: void
+> 	32: )
+> 	32: {
+> 33:     int i;
+> 	33: reserved word: int
+> 	33: ID, name= i
+> 	33: ;
+> 34:     i = 0;
+> 	34: ID, name= i
+> 	34: =
+> 	34: NUM, val= 0
+> 	34: ;
+> 35:     while(i<10){
+> 	35: reserved word: while
+> 	35: (
+> 	35: ID, name= i
+> 	35: <
+> 	35: NUM, val= 10
+> 	35: )
+> 	35: {
+> 36:         x[i] = input();
+> 	36: ID, name= x
+> 	36: [
+> 	36: ID, name= i
+> 	36: ]
+> 	36: =
+> 	36: ID, name= input
+> 	36: (
+> 	36: )
+> 	36: ;
+> 37:         i = i + 1;
+> 	37: ID, name= i
+> 	37: =
+> 	37: ID, name= i
+> 	37: +
+> 	37: NUM, val= 1
+> 	37: ;
+> 38:     }
+> 	38: }
+> 39:     sort(x,0,10);
+> 	39: ID, name= sort
+> 	39: (
+> 	39: ID, name= x
+> 	39: ,
+> 	39: NUM, val= 0
+> 	39: ,
+> 	39: NUM, val= 10
+> 	39: )
+> 	39: ;
+> 40:     i = 0;
+> 	40: ID, name= i
+> 	40: =
+> 	40: NUM, val= 0
+> 	40: ;
+> 41:     while(i<10){
+> 	41: reserved word: while
+> 	41: (
+> 	41: ID, name= i
+> 	41: <
+> 	41: NUM, val= 10
+> 	41: )
+> 	41: {
+> 42:         output(x[i]);
+> 	42: ID, name= output
+> 	42: (
+> 	42: ID, name= x
+> 	42: [
+> 	42: ID, name= i
+> 	42: ]
+> 	42: )
+> 	42: ;
+> 43:         i = i + 1;
+> 	43: ID, name= i
+> 	43: =
+> 	43: ID, name= i
+> 	43: +
+> 	43: NUM, val= 1
+> 	43: ;
+> 44:     }
+> 	44: }
+> 45: }
+> 	45: }
+> 	46: EOF
+> 
+> Syntax tree:
+> Declare int array: x
+>     Const: 10
+> Declare function (return type "int"): minloc
+>     Function param (int array): a
+>     Function param (int var): low
+>     Function param (int var): high
+>     Declare int var: i
+>     Declare int var: x
+>     Declare int var: k
+>     Assign to var: k
+>         Id: low
+>     Assign to var: x
+>         Id: a
+>             Id: low
+>     Assign to var: i
+>         Op: +
+>             Id: low
+>             Const: 1
+>     Iteration (loop)
+>         Op: <
+>             Id: i
+>             Id: high
+>         Conditional selection
+>             Op: <
+>                 Id: a
+>                     Id: i
+>                 Id: x
+>             Assign to var: x
+>                 Id: a
+>                     Id: i
+>             Assign to var: k
+>                 Id: i
+>         Assign to var: i
+>             Op: +
+>                 Id: i
+>                 Const: 1
+>     Return
+>         Id: k
+> Declare function (return type "void"): sort
+>     Function param (int array): a
+>     Function param (int var): low
+>     Function param (int var): high
+>     Declare int var: i
+>     Declare int var: k
+>     Assign to var: i
+>         Id: low
+>     Iteration (loop)
+>         Op: <
+>             Id: i
+>             Op: -
+>                 Id: high
+>                 Const: 1
+>         Declare int var: t
+>         Assign to var: k
+>             Function call: minloc
+>                 Id: a
+>                 Id: i
+>                 Id: high
+>         Assign to var: t
+>             Id: a
+>                 Id: k
+>         Assign to array: a
+>             Id: k
+>             Id: a
+>                 Id: i
+>         Assign to array: a
+>             Id: i
+>             Id: t
+>         Assign to var: i
+>             Op: +
+>                 Id: i
+>                 Const: 1
+> Declare function (return type "void"): main
+>     Declare int var: i
+>     Assign to var: i
+>         Const: 0
+>     Iteration (loop)
+>         Op: <
+>             Id: i
+>             Const: 10
+>         Assign to array: x
+>             Id: i
+>             Function call: input
+>         Assign to var: i
+>             Op: +
+>                 Id: i
+>                 Const: 1
+>     Function call: sort
+>         Id: x
+>         Const: 0
+>         Const: 10
+>     Assign to var: i
+>         Const: 0
+>     Iteration (loop)
+>         Op: <
+>             Id: i
+>             Const: 10
+>         Function call: output
+>             Id: x
+>                 Id: i
+>         Assign to var: i
+>             Op: +
+>                 Id: i
+>                 Const: 1
+> 
+> Building Symbol Table...
+> 
+> Symbol table:
+> 
+> Variable Name  Scope     ID Type  Data Type  Line Numbers
+> -------------  --------  -------  ---------  -------------------------
+> a              minloc    array    int         4  7 10 11 
+> low            minloc    var      int         4  6  7  8 
+> x              minloc    var      int         5  7 10 11 
+> low            sort      var      int        19 21 
+> main                     fun      void       32 
+> high           sort      var      int        19 22 24 
+> k              sort      var      int        20 24 25 26 
+> a              sort      array    int        19 24 25 26 27 
+> sort                     fun      void       19 39 
+> input                    fun      int        36 
+> minloc                   fun      int         4 24 
+> t              sort      var      int        23 25 27 
+> output                   fun      void       42 
+> x                        array    int         2 36 39 42 
+> k              minloc    var      int         5  6 12 16 
+> high           minloc    var      int         4  9 
+> i              main      var      int        33 34 35 36 37 40 41 42 43 
+> i              minloc    var      int         5  8  9 10 11 12 14 
+> i              sort      var      int        20 21 22 24 26 27 28 
+> 
+> Checking Types...
+> 
+> Type Checking Finished
+> 
+> Checking for main...
+> * TINY Compilation to TM Code
+> * Standard prelude:
+>   0:     LD  6,0(0) 	load maxaddress from location 0
+>   1:     LD  2,0(0) 	load maxaddress from location 0
+>   2:     ST  0,0(0) 	clear location 0
+> * End of standard prelude.
+> * -> declare vector
+>   3:    LDC  0,10(0) 	load global position to ac
+>   4:    LDC  5,0(0) 	load 0
+>   5:     ST  0,10(5) 	store ac in global_position_aux
+> * <- declare vector
+> * -> Init Function (minloc)
+>   7:     ST  0,-1(2) 	store return address from ac
+> * -> Param vet
+> * <- Param vet
+> * -> Param
+> * <- Param
+> * -> Param
+> * <- Param
+> * -> declare var
+> * <- declare var
+> * -> declare var
+> * <- declare var
+> * -> declare var
+> * <- declare var
+> * -> assign
+> * -> Id
+>   8:     LD  0,-3(2) 	load id value
+> * <- Id
+>   9:     ST  0,-7(2) 	assign: store value
+> * <- assign
+> * -> assign
+> * -> Id
+> * -> Vector
+>  10:     LD  0,-2(2) 	get the address of the vector
+>  11:     LD  3,-3(2) 	get the value of the index
+>  12:    LDC  4,1(0) 	load 1
+>  13:    ADD  3,3,4 	sub 3 by 1
+>  14:    SUB  0,0,3 	get the address
+>  15:     LD  0,0(0) 	get the value of the vector
+> * <- Id
+>  16:     ST  0,-6(2) 	assign: store value
+> * <- assign
+> * -> assign
+> * -> Op
+> * -> Id
+>  17:     LD  0,-3(2) 	load id value
+> * <- Id
+>  18:     ST  0,-8(2) 	op: push left
+> * -> Const
+>  19:    LDC  0,1(0) 	load const
+> * <- Const
+>  20:     LD  1,-8(2) 	op: load left
+>  21:    ADD  0,1,0 	op +
+> * <- Op
+>  22:     ST  0,-5(2) 	assign: store value
+> * <- assign
+> * -> while
+> * repeat: jump after body comes back here
+> * -> Op
+> * -> Id
+>  23:     LD  0,-5(2) 	load id value
+> * <- Id
+>  24:     ST  0,-8(2) 	op: push left
+> * -> Id
+>  25:     LD  0,-4(2) 	load id value
+> * <- Id
+>  26:     LD  1,-8(2) 	op: load left
+>  27:    SUB  0,1,0 	op <
+>  28:    JLT  0,2(7) 	br if true
+>  29:    LDC  0,0(0) 	false case
+>  30:    LDA  7,1(7) 	unconditional jmp
+>  31:    LDC  0,1(0) 	true case
+> * <- Op
+> * -> if
+> * -> Op
+> * -> Id
+> * -> Vector
+>  33:     LD  0,-2(2) 	get the address of the vector
+>  34:     LD  3,-5(2) 	get the value of the index
+>  35:    LDC  4,1(0) 	load 1
+>  36:    ADD  3,3,4 	sub 3 by 1
+>  37:    SUB  0,0,3 	get the address
+>  38:     LD  0,0(0) 	get the value of the vector
+> * <- Id
+>  39:     ST  0,-8(2) 	op: push left
+> * -> Id
+>  40:     LD  0,-6(2) 	load id value
+> * <- Id
+>  41:     LD  1,-8(2) 	op: load left
+>  42:    SUB  0,1,0 	op <
+>  43:    JLT  0,2(7) 	br if true
+>  44:    LDC  0,0(0) 	false case
+>  45:    LDA  7,1(7) 	unconditional jmp
+>  46:    LDC  0,1(0) 	true case
+> * <- Op
+> * if: jump to else belongs here
+> * -> assign
+> * -> Id
+> * -> Vector
+>  48:     LD  0,-2(2) 	get the address of the vector
+>  49:     LD  3,-5(2) 	get the value of the index
+>  50:    LDC  4,1(0) 	load 1
+>  51:    ADD  3,3,4 	sub 3 by 1
+>  52:    SUB  0,0,3 	get the address
+>  53:     LD  0,0(0) 	get the value of the vector
+> * <- Id
+>  54:     ST  0,-6(2) 	assign: store value
+> * <- assign
+> * -> assign
+> * -> Id
+>  55:     LD  0,-5(2) 	load id value
+> * <- Id
+>  56:     ST  0,-7(2) 	assign: store value
+> * <- assign
+> * if: jump to end belongs here
+>  47:    JEQ  0,10(7) 	if: jmp to else
+>  57:    LDA  7,0(7) 	jmp to end
+> * <- if
+> * -> assign
+> * -> Op
+> * -> Id
+>  58:     LD  0,-5(2) 	load id value
+> * <- Id
+>  59:     ST  0,-8(2) 	op: push left
+> * -> Const
+>  60:    LDC  0,1(0) 	load const
+> * <- Const
+>  61:     LD  1,-8(2) 	op: load left
+>  62:    ADD  0,1,0 	op +
+> * <- Op
+>  63:     ST  0,-5(2) 	assign: store value
+> * <- assign
+>  64:    LDA  7,-42(7) 	jump to savedLoc1
+>  32:    JEQ  0,32(7) 	repeat: jmp to end
+> * <- repeat
+> * -> return
+> * -> Id
+>  65:     LD  0,-7(2) 	load id value
+> * <- Id
+>  66:    LDA  1,0(2) 	save current fp into ac1
+>  67:     LD  2,0(2) 	make fp = ofp
+>  68:     LD  7,-1(1) 	return to caller
+> * <- return
+> * <- End Function
+> * -> Init Function (sort)
+>  69:     ST  0,-1(2) 	store return address from ac
+> * -> Param vet
+> * <- Param vet
+> * -> Param
+> * <- Param
+> * -> Param
+> * <- Param
+> * -> declare var
+> * <- declare var
+> * -> declare var
+> * <- declare var
+> * -> assign
+> * -> Id
+>  70:     LD  0,-3(2) 	load id value
+> * <- Id
+>  71:     ST  0,-5(2) 	assign: store value
+> * <- assign
+> * -> while
+> * repeat: jump after body comes back here
+> * -> Op
+> * -> Id
+>  72:     LD  0,-5(2) 	load id value
+> * <- Id
+>  73:     ST  0,-7(2) 	op: push left
+> * -> Op
+> * -> Id
+>  74:     LD  0,-4(2) 	load id value
+> * <- Id
+>  75:     ST  0,-8(2) 	op: push left
+> * -> Const
+>  76:    LDC  0,1(0) 	load const
+> * <- Const
+>  77:     LD  1,-8(2) 	op: load left
+>  78:    SUB  0,1,0 	op -
+> * <- Op
+>  79:     LD  1,-7(2) 	op: load left
+>  80:    SUB  0,1,0 	op <
+>  81:    JLT  0,2(7) 	br if true
+>  82:    LDC  0,0(0) 	false case
+>  83:    LDA  7,1(7) 	unconditional jmp
+>  84:    LDC  0,1(0) 	true case
+> * <- Op
+> * -> declare var
+> * <- declare var
+> * -> assign
+> * -> Function Call (minloc)
+>  86:     ST  2,-8(2) 	Guard fp
+> * -> Id
+> * -> Vector
+>  87:     LD  0,-2(2) 	load id value
+> * <- Id
+>  88:     ST  0,-10(2) 	Store value of func argument
+> * -> Id
+>  89:     LD  0,-5(2) 	load id value
+> * <- Id
+>  90:     ST  0,-11(2) 	Store value of func argument
+> * -> Id
+>  91:     LD  0,-4(2) 	load id value
+> * <- Id
+>  92:     ST  0,-12(2) 	Store value of func argument
+>  93:    LDA  2,-8(2) 	change fp
+>  94:    LDC  0,96(0) 	Guard return adress
+>  95:    LDA  7,-89(7) 	jump to function
+> * <- Function Call
+>  96:     ST  0,-6(2) 	assign: store value
+> * <- assign
+> * -> assign
+> * -> Id
+> * -> Vector
+>  97:     LD  0,-2(2) 	get the address of the vector
+>  98:     LD  3,-6(2) 	get the value of the index
+>  99:    LDC  4,1(0) 	load 1
+> 100:    ADD  3,3,4 	sub 3 by 1
+> 101:    SUB  0,0,3 	get the address
+> 102:     LD  0,0(0) 	get the value of the vector
+> * <- Id
+> 103:     ST  0,-7(2) 	assign: store value
+> * <- assign
+> * -> assign vector
+> * -> Vector
+> * -> Id
+> * -> Vector
+> 104:     LD  0,-2(2) 	get the address of the vector
+> 105:     LD  3,-5(2) 	get the value of the index
+> 106:    LDC  4,1(0) 	load 1
+> 107:    ADD  3,3,4 	sub 3 by 1
+> 108:    SUB  0,0,3 	get the address
+> 109:     LD  0,0(0) 	get the value of the vector
+> * <- Id
+> 110:     LD  1,-2(2) 	get the address of the vector
+> 111:     LD  3,-6(2) 	get the value of the index
+> 112:    LDC  4,1(0) 	load 1
+> 113:    ADD  3,3,4 	sub 3 by 1
+> 114:    SUB  1,1,3 	get the address
+> 115:     ST  0,0(1) 	get the value of the vector
+> * -> assign vector
+> * -> Vector
+> * -> Id
+> 116:     LD  0,-7(2) 	load id value
+> * <- Id
+> 117:     LD  1,-2(2) 	get the address of the vector
+> 118:     LD  3,-5(2) 	get the value of the index
+> 119:    LDC  4,1(0) 	load 1
+> 120:    ADD  3,3,4 	sub 3 by 1
+> 121:    SUB  1,1,3 	get the address
+> 122:     ST  0,0(1) 	get the value of the vector
+> * -> assign
+> * -> Op
+> * -> Id
+> 123:     LD  0,-5(2) 	load id value
+> * <- Id
+> 124:     ST  0,-8(2) 	op: push left
+> * -> Const
+> 125:    LDC  0,1(0) 	load const
+> * <- Const
+> 126:     LD  1,-8(2) 	op: load left
+> 127:    ADD  0,1,0 	op +
+> * <- Op
+> 128:     ST  0,-5(2) 	assign: store value
+> * <- assign
+> 129:    LDA  7,-58(7) 	jump to savedLoc1
+>  85:    JEQ  0,44(7) 	repeat: jmp to end
+> * <- repeat
+> 130:    LDA  1,0(2) 	save current fp into ac1
+> 131:     LD  2,0(2) 	make fp = ofp
+> 132:     LD  7,-1(1) 	return to caller
+> * <- End Function
+> * -> Init Function (main)
+>   6:    LDA  7,126(7) 	jump to main
+> * -> declare var
+> * <- declare var
+> * -> assign
+> * -> Const
+> 133:    LDC  0,0(0) 	load const
+> * <- Const
+> 134:     ST  0,-2(2) 	assign: store value
+> * <- assign
+> * -> while
+> * repeat: jump after body comes back here
+> * -> Op
+> * -> Id
+> 135:     LD  0,-2(2) 	load id value
+> * <- Id
+> 136:     ST  0,-3(2) 	op: push left
+> * -> Const
+> 137:    LDC  0,10(0) 	load const
+> * <- Const
+> 138:     LD  1,-3(2) 	op: load left
+> 139:    SUB  0,1,0 	op <
+> 140:    JLT  0,2(7) 	br if true
+> 141:    LDC  0,0(0) 	false case
+> 142:    LDA  7,1(7) 	unconditional jmp
+> 143:    LDC  0,1(0) 	true case
+> * <- Op
+> * -> assign vector
+> * -> Vector
+> * -> Function Call (input)
+> 145:     IN  0,0,0 	read input
+> 146:    LDC  5,0(0) 	load 0
+> 147:     LD  1,10(5) 	get the address of the vector
+> 148:     LD  3,-2(2) 	get the value of the index
+> 149:    LDC  4,1(0) 	load 1
+> 150:    ADD  3,3,4 	sub 3 by 1
+> 151:    SUB  1,1,3 	get the address
+> 152:     ST  0,0(1) 	get the value of the vector
+> * -> assign
+> * -> Op
+> * -> Id
+> 153:     LD  0,-2(2) 	load id value
+> * <- Id
+> 154:     ST  0,-3(2) 	op: push left
+> * -> Const
+> 155:    LDC  0,1(0) 	load const
+> * <- Const
+> 156:     LD  1,-3(2) 	op: load left
+> 157:    ADD  0,1,0 	op +
+> * <- Op
+> 158:     ST  0,-2(2) 	assign: store value
+> * <- assign
+> 159:    LDA  7,-25(7) 	jump to savedLoc1
+> 144:    JEQ  0,15(7) 	repeat: jmp to end
+> * <- repeat
+> * -> Function Call (sort)
+> 160:     ST  2,-3(2) 	Guard fp
+> * -> Id
+> * -> Vector
+> 161:    LDC  5,0(0) 	load 0
+> 162:     LD  0,10(5) 	load id value
+> * <- Id
+> 163:     ST  0,-5(2) 	Store value of func argument
+> * -> Const
+> 164:    LDC  0,0(0) 	load const
+> * <- Const
+> 165:     ST  0,-6(2) 	Store value of func argument
+> * -> Const
+> 166:    LDC  0,10(0) 	load const
+> * <- Const
+> 167:     ST  0,-7(2) 	Store value of func argument
+> 168:    LDA  2,-3(2) 	change fp
+> 169:    LDC  0,171(0) 	Guard return adress
+> 170:    LDA  7,-102(7) 	jump to function
+> * <- Function Call
+> * -> assign
+> * -> Const
+> 171:    LDC  0,0(0) 	load const
+> * <- Const
+> 172:     ST  0,-2(2) 	assign: store value
+> * <- assign
+> * -> while
+> * repeat: jump after body comes back here
+> * -> Op
+> * -> Id
+> 173:     LD  0,-2(2) 	load id value
+> * <- Id
+> 174:     ST  0,-3(2) 	op: push left
+> * -> Const
+> 175:    LDC  0,10(0) 	load const
+> * <- Const
+> 176:     LD  1,-3(2) 	op: load left
+> 177:    SUB  0,1,0 	op <
+> 178:    JLT  0,2(7) 	br if true
+> 179:    LDC  0,0(0) 	false case
+> 180:    LDA  7,1(7) 	unconditional jmp
+> 181:    LDC  0,1(0) 	true case
+> * <- Op
+> * -> Function Call (output)
+> * -> Id
+> * -> Vector
+> 183:    LDC  5,0(0) 	load 0
+> 184:     LD  0,10(5) 	get the address of the vector
+> 185:     LD  3,-2(2) 	get the value of the index
+> 186:    LDC  4,1(0) 	load 1
+> 187:    ADD  3,3,4 	sub 3 by 1
+> 188:    SUB  0,0,3 	get the address
+> 189:     LD  0,0(0) 	get the value of the vector
+> * <- Id
+> 190:    OUT  0,0,0 	print value
+> * -> assign
+> * -> Op
+> * -> Id
+> 191:     LD  0,-2(2) 	load id value
+> * <- Id
+> 192:     ST  0,-3(2) 	op: push left
+> * -> Const
+> 193:    LDC  0,1(0) 	load const
+> * <- Const
+> 194:     LD  1,-3(2) 	op: load left
+> 195:    ADD  0,1,0 	op +
+> * <- Op
+> 196:     ST  0,-2(2) 	assign: store value
+> * <- assign
+> 197:    LDA  7,-25(7) 	jump to savedLoc1
+> 182:    JEQ  0,15(7) 	repeat: jmp to end
+> * <- repeat
+> * <- End Function
+> * End of execution.
+> 198:   HALT  0,0,0 	

@@ -1,0 +1,147 @@
+\begin{theindex}
+
+  \item {closePrinter}
+    \subitem {log.c}, \hyperpage{4}
+    \subitem {log.h}, \hyperpage{11}
+  \item {currentState}
+    \subitem {log.c}, \hyperpage{8}
+
+  \indexspace
+
+  \item {doneLEXstartSYN}
+    \subitem {log.c}, \hyperpage{4}
+    \subitem {log.h}, \hyperpage{11}
+  \item {doneSYNstartTAB}
+    \subitem {log.c}, \hyperpage{4}
+    \subitem {log.h}, \hyperpage{11}
+  \item {doneTABstartGEN}
+    \subitem {log.c}, \hyperpage{5}
+    \subitem {log.h}, \hyperpage{11}
+
+  \indexspace
+
+  \item {ER\_}
+    \subitem {log.h}, \hyperpage{11}
+
+  \indexspace
+
+  \item {fflushc}
+    \subitem {log.c}, \hyperpage{5}
+    \subitem {log.h}, \hyperpage{12}
+  \item {FileDestination}
+    \subitem {log.h}, \hyperpage{10}
+  \item {fileDestination}
+    \subitem {log.h}, \hyperpage{10}
+  \item {fileER\_}
+    \subitem {log.c}, \hyperpage{8}
+  \item {fileGEN}
+    \subitem {log.c}, \hyperpage{8}
+  \item {fileLEX}
+    \subitem {log.c}, \hyperpage{8}
+  \item {filesOpened}
+    \subitem {log.c}, \hyperpage{8}
+  \item {fileSYN}
+    \subitem {log.c}, \hyperpage{9}
+  \item {fileTAB}
+    \subitem {log.c}, \hyperpage{9}
+
+  \indexspace
+
+  \item {GEN}
+    \subitem {log.h}, \hyperpage{11}
+  \item {GER}
+    \subitem {log.h}, \hyperpage{11}
+
+  \indexspace
+
+  \item {initializePrinter}
+    \subitem {log.c}, \hyperpage{5}
+    \subitem {log.h}, \hyperpage{12}
+
+  \indexspace
+
+  \item {LER}
+    \subitem {log.h}, \hyperpage{11}
+  \item {LEX}
+    \subitem {log.h}, \hyperpage{11}
+  \item {log.c}, \hyperpage{3}
+    \subitem {closePrinter}, \hyperpage{4}
+    \subitem {currentState}, \hyperpage{8}
+    \subitem {doneLEXstartSYN}, \hyperpage{4}
+    \subitem {doneSYNstartTAB}, \hyperpage{4}
+    \subitem {doneTABstartGEN}, \hyperpage{5}
+    \subitem {fflushc}, \hyperpage{5}
+    \subitem {fileER\_}, \hyperpage{8}
+    \subitem {fileGEN}, \hyperpage{8}
+    \subitem {fileLEX}, \hyperpage{8}
+    \subitem {filesOpened}, \hyperpage{8}
+    \subitem {fileSYN}, \hyperpage{9}
+    \subitem {fileTAB}, \hyperpage{9}
+    \subitem {initializePrinter}, \hyperpage{5}
+    \subitem {pc}, \hyperpage{6}
+    \subitem {pce}, \hyperpage{6}
+    \subitem {pp}, \hyperpage{7}
+    \subitem {splitFileName}, \hyperpage{7}
+  \item {log.h}, \hyperpage{9}
+    \subitem {closePrinter}, \hyperpage{11}
+    \subitem {doneLEXstartSYN}, \hyperpage{11}
+    \subitem {doneSYNstartTAB}, \hyperpage{11}
+    \subitem {doneTABstartGEN}, \hyperpage{11}
+    \subitem {ER\_}, \hyperpage{11}
+    \subitem {fflushc}, \hyperpage{12}
+    \subitem {FileDestination}, \hyperpage{10}
+    \subitem {fileDestination}, \hyperpage{10}
+    \subitem {GEN}, \hyperpage{11}
+    \subitem {GER}, \hyperpage{11}
+    \subitem {initializePrinter}, \hyperpage{12}
+    \subitem {LER}, \hyperpage{11}
+    \subitem {LEX}, \hyperpage{11}
+    \subitem {LOGALL}, \hyperpage{11}
+    \subitem {pc}, \hyperpage{13}
+    \subitem {pce}, \hyperpage{13}
+    \subitem {pp}, \hyperpage{13}
+    \subitem {SER}, \hyperpage{11}
+    \subitem {SYN}, \hyperpage{11}
+    \subitem {TAB}, \hyperpage{11}
+    \subitem {TER}, \hyperpage{11}
+    \subitem {UP2SYN}, \hyperpage{11}
+    \subitem {UP2TAB}, \hyperpage{11}
+  \item {LOGALL}
+    \subitem {log.h}, \hyperpage{11}
+
+  \indexspace
+
+  \item {pc}
+    \subitem {log.c}, \hyperpage{6}
+    \subitem {log.h}, \hyperpage{13}
+  \item {pce}
+    \subitem {log.c}, \hyperpage{6}
+    \subitem {log.h}, \hyperpage{13}
+  \item {pp}
+    \subitem {log.c}, \hyperpage{7}
+    \subitem {log.h}, \hyperpage{13}
+
+  \indexspace
+
+  \item {SER}
+    \subitem {log.h}, \hyperpage{11}
+  \item {splitFileName}
+    \subitem {log.c}, \hyperpage{7}
+  \item {SYN}
+    \subitem {log.h}, \hyperpage{11}
+
+  \indexspace
+
+  \item {TAB}
+    \subitem {log.h}, \hyperpage{11}
+  \item {TER}
+    \subitem {log.h}, \hyperpage{11}
+
+  \indexspace
+
+  \item {UP2SYN}
+    \subitem {log.h}, \hyperpage{11}
+  \item {UP2TAB}
+    \subitem {log.h}, \hyperpage{11}
+
+\end{theindex}

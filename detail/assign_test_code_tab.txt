@@ -1,0 +1,13 @@
+
+Symbol table:
+
+Variable Name  Scope     ID Type  Data Type  Line Numbers
+-------------  --------  -------  ---------  -------------------------
+a              funOne    var      int         2  5 
+main                     fun      void        8 
+input                    fun      int        
+y              main      var      int        10 11 
+funOne                   fun      void        1 
+output                   fun      void       
+x              main      var      int         9 11 
+b              funOne    var      int         3  4  5 

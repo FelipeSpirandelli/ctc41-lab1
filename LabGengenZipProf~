@@ -1,0 +1,7 @@
+#!/bin/bash
+FDATE=`date +'%y%m%d_%H%M'`
+
+zip -r /tmp/labGen${FDATE}.zip * -x srcok\* -x build\* -x srclog\* -x TinySemantico\* -x srcq*\* -x old\* -x TinyFlex\*
+
+zip -r /tmp/labGenFULL${FDATE}.zip * -x build\* 
+

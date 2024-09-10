@@ -1,0 +1,5 @@
+rm -fr build
+mkdir build
+rm -fr alunoout
+mkdir alunoout
+

@@ -1,0 +1,1 @@
+/usr/bin/cc    CMakeFiles/tiny.dir/TinyFlex/main.c.o CMakeFiles/tiny.dir/TinyFlex/util.c.o CMakeFiles/tiny.dir/lib/log.c.o CMakeFiles/tiny.dir/tinylexer.c.o  -o tiny  /usr/lib/x86_64-linux-gnu/libfl.so 

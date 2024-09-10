@@ -1,0 +1,193 @@
+
+TINY COMPILATION: ../example/assign_test_code.cm
+1: void funOne (void) {
+	1: reserved word: void
+	1: ID, name= funOne
+	1: (
+	1: reserved word: void
+	1: )
+	1: {
+2:     int a;
+	2: reserved word: int
+	2: ID, name= a
+	2: ;
+3:     int b;
+	3: reserved word: int
+	3: ID, name= b
+	3: ;
+4:     b = 1 + (5 * 7) / 2;
+	4: ID, name= b
+	4: =
+	4: NUM, val= 1
+	4: +
+	4: (
+	4: NUM, val= 5
+	4: *
+	4: NUM, val= 7
+	4: )
+	4: /
+	4: NUM, val= 2
+	4: ;
+5:     a = b + 4;
+	5: ID, name= a
+	5: =
+	5: ID, name= b
+	5: +
+	5: NUM, val= 4
+	5: ;
+6: }
+	6: }
+7: 
+8: void main (void) {
+	8: reserved word: void
+	8: ID, name= main
+	8: (
+	8: reserved word: void
+	8: )
+	8: {
+9:     int x;
+	9: reserved word: int
+	9: ID, name= x
+	9: ;
+10:     int y;
+	10: reserved word: int
+	10: ID, name= y
+	10: ;
+11:     y = x + 1;
+	11: ID, name= y
+	11: =
+	11: ID, name= x
+	11: +
+	11: NUM, val= 1
+	11: ;
+12: }
+	12: }
+	12: EOF
+
+Syntax tree:
+Declare function (return type "void"): funOne
+    Declare int var: a
+    Declare int var: b
+    Assign to var: b
+        Op: +
+            Const: 1
+            Op: /
+                Op: *
+                    Const: 5
+                    Const: 7
+                Const: 2
+    Assign to var: a
+        Op: +
+            Id: b
+            Const: 4
+Declare function (return type "void"): main
+    Declare int var: x
+    Declare int var: y
+    Assign to var: y
+        Op: +
+            Id: x
+            Const: 1
+
+Building Symbol Table...
+
+Symbol table:
+
+Variable Name  Scope     ID Type  Data Type  Line Numbers
+-------------  --------  -------  ---------  -------------------------
+a              funOne    var      int         2  5 
+main                     fun      void        8 
+input                    fun      int        
+y              main      var      int        10 11 
+funOne                   fun      void        1 
+output                   fun      void       
+x              main      var      int         9 11 
+b              funOne    var      int         3  4  5 
+
+Checking Types...
+
+Type Checking Finished
+
+Checking for main...
+* TINY Compilation to TM Code
+* Standard prelude:
+  0:     LD  6,0(0) 	load maxaddress from location 0
+  1:     LD  2,0(0) 	load maxaddress from location 0
+  2:     ST  0,0(0) 	clear location 0
+* End of standard prelude.
+* -> Init Function (funOne)
+  4:     ST  0,-1(2) 	store return address from ac
+* -> declare var
+* <- declare var
+* -> declare var
+* <- declare var
+* -> assign
+* -> Op
+* -> Const
+  5:    LDC  0,1(0) 	load const
+* <- Const
+  6:     ST  0,-4(2) 	op: push left
+* -> Op
+* -> Op
+* -> Const
+  7:    LDC  0,5(0) 	load const
+* <- Const
+  8:     ST  0,-5(2) 	op: push left
+* -> Const
+  9:    LDC  0,7(0) 	load const
+* <- Const
+ 10:     LD  1,-5(2) 	op: load left
+ 11:    MUL  0,1,0 	op *
+* <- Op
+ 12:     ST  0,-5(2) 	op: push left
+* -> Const
+ 13:    LDC  0,2(0) 	load const
+* <- Const
+ 14:     LD  1,-5(2) 	op: load left
+ 15:    DIV  0,1,0 	op /
+* <- Op
+ 16:     LD  1,-4(2) 	op: load left
+ 17:    ADD  0,1,0 	op +
+* <- Op
+ 18:     ST  0,-3(2) 	assign: store value
+* <- assign
+* -> assign
+* -> Op
+* -> Id
+ 19:     LD  0,-3(2) 	load id value
+* <- Id
+ 20:     ST  0,-4(2) 	op: push left
+* -> Const
+ 21:    LDC  0,4(0) 	load const
+* <- Const
+ 22:     LD  1,-4(2) 	op: load left
+ 23:    ADD  0,1,0 	op +
+* <- Op
+ 24:     ST  0,-2(2) 	assign: store value
+* <- assign
+ 25:    LDA  1,0(2) 	save current fp into ac1
+ 26:     LD  2,0(2) 	make fp = ofp
+ 27:     LD  7,-1(1) 	return to caller
+* <- End Function
+* -> Init Function (main)
+  3:    LDA  7,24(7) 	jump to main
+* -> declare var
+* <- declare var
+* -> declare var
+* <- declare var
+* -> assign
+* -> Op
+* -> Id
+ 28:     LD  0,-2(2) 	load id value
+* <- Id
+ 29:     ST  0,-4(2) 	op: push left
+* -> Const
+ 30:    LDC  0,1(0) 	load const
+* <- Const
+ 31:     LD  1,-4(2) 	op: load left
+ 32:    ADD  0,1,0 	op +
+* <- Op
+ 33:     ST  0,-3(2) 	assign: store value
+* <- assign
+* <- End Function
+* End of execution.
+ 34:   HALT  0,0,0 	

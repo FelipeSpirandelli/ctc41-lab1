@@ -1,0 +1,11 @@
+
+Symbol table:
+
+Variable Name  Scope     ID Type  Data Type  Line Numbers
+-------------  --------  -------  ---------  -------------------------
+a              main      var      int         8  9 
+main                     fun      void        6 
+input                    fun      int        
+exemplo                  fun      void        1  9 
+output                   fun      void        3 
+Semantic error at line 9: invalid use of void expression

@@ -1,0 +1,263 @@
+0a1,262
+> 
+> TINY COMPILATION: ../example/mdc.cm
+> 1: /* Um programa para calcular mdc 
+> 2:    Segundo o algoritmo de Euclides*/
+> 3: int gdc (int u, int v)
+> 	3: reserved word: int
+> 	3: ID, name= gdc
+> 	3: (
+> 	3: reserved word: int
+> 	3: ID, name= u
+> 	3: ,
+> 	3: reserved word: int
+> 	3: ID, name= v
+> 	3: )
+> 4: {
+> 	4: {
+> 5:     if (v == 0) return u;
+> 	5: reserved word: if
+> 	5: (
+> 	5: ID, name= v
+> 	5: ==
+> 	5: NUM, val= 0
+> 	5: )
+> 	5: reserved word: return
+> 	5: ID, name= u
+> 	5: ;
+> 6:     else return gdc(v,u-u/v*v);
+> 	6: reserved word: else
+> 	6: reserved word: return
+> 	6: ID, name= gdc
+> 	6: (
+> 	6: ID, name= v
+> 	6: ,
+> 	6: ID, name= u
+> 	6: -
+> 	6: ID, name= u
+> 	6: /
+> 	6: ID, name= v
+> 	6: *
+> 	6: ID, name= v
+> 	6: )
+> 	6: ;
+> 7:     /* u-u / v*v == u mod v */
+> 8: }
+> 	8: }
+> 9: void main(void)
+> 	9: reserved word: void
+> 	9: ID, name= main
+> 	9: (
+> 	9: reserved word: void
+> 	9: )
+> 10: {
+> 	10: {
+> 11:     int x;
+> 	11: reserved word: int
+> 	11: ID, name= x
+> 	11: ;
+> 12:     int y;
+> 	12: reserved word: int
+> 	12: ID, name= y
+> 	12: ;
+> 13:     x = input();
+> 	13: ID, name= x
+> 	13: =
+> 	13: ID, name= input
+> 	13: (
+> 	13: )
+> 	13: ;
+> 14:     y = input();
+> 	14: ID, name= y
+> 	14: =
+> 	14: ID, name= input
+> 	14: (
+> 	14: )
+> 	14: ;
+> 15:     output(gdc(x,y));
+> 	15: ID, name= output
+> 	15: (
+> 	15: ID, name= gdc
+> 	15: (
+> 	15: ID, name= x
+> 	15: ,
+> 	15: ID, name= y
+> 	15: )
+> 	15: )
+> 	15: ;
+> 16: }
+> 	16: }
+> 	16: EOF
+> 
+> Syntax tree:
+> Declare function (return type "int"): gdc
+>     Function param (int var): u
+>     Function param (int var): v
+>     Conditional selection
+>         Op: ==
+>             Id: v
+>             Const: 0
+>         Return
+>             Id: u
+>         Return
+>             Function call: gdc
+>                 Id: v
+>                 Op: -
+>                     Id: u
+>                     Op: *
+>                         Op: /
+>                             Id: u
+>                             Id: v
+>                         Id: v
+> Declare function (return type "void"): main
+>     Declare int var: x
+>     Declare int var: y
+>     Assign to var: x
+>         Function call: input
+>     Assign to var: y
+>         Function call: input
+>     Function call: output
+>         Function call: gdc
+>             Id: x
+>             Id: y
+> 
+> Building Symbol Table...
+> 
+> Symbol table:
+> 
+> Variable Name  Scope     ID Type  Data Type  Line Numbers
+> -------------  --------  -------  ---------  -------------------------
+> gdc                      fun      int         3  6 15 
+> main                     fun      void        9 
+> u              gdc       var      int         3  5  6 
+> input                    fun      int        13 14 
+> y              main      var      int        12 14 15 
+> output                   fun      void       15 
+> v              gdc       var      int         3  5  6 
+> x              main      var      int        11 13 15 
+> 
+> Checking Types...
+> 
+> Type Checking Finished
+> 
+> Checking for main...
+> * TINY Compilation to TM Code
+> * Standard prelude:
+>   0:     LD  6,0(0) 	load maxaddress from location 0
+>   1:     LD  2,0(0) 	load maxaddress from location 0
+>   2:     ST  0,0(0) 	clear location 0
+> * End of standard prelude.
+> * -> Init Function (gdc)
+>   4:     ST  0,-1(2) 	store return address from ac
+> * -> Param
+> * <- Param
+> * -> Param
+> * <- Param
+> * -> if
+> * -> Op
+> * -> Id
+>   5:     LD  0,-3(2) 	load id value
+> * <- Id
+>   6:     ST  0,-4(2) 	op: push left
+> * -> Const
+>   7:    LDC  0,0(0) 	load const
+> * <- Const
+>   8:     LD  1,-4(2) 	op: load left
+>   9:    SUB  0,1,0 	op ==
+>  10:    JEQ  0,2(7) 	br if true
+>  11:    LDC  0,0(0) 	false case
+>  12:    LDA  7,1(7) 	unconditional jmp
+>  13:    LDC  0,1(0) 	true case
+> * <- Op
+> * if: jump to else belongs here
+> * -> return
+> * -> Id
+>  15:     LD  0,-2(2) 	load id value
+> * <- Id
+>  16:    LDA  1,0(2) 	save current fp into ac1
+>  17:     LD  2,0(2) 	make fp = ofp
+>  18:     LD  7,-1(1) 	return to caller
+> * <- return
+> * if: jump to end belongs here
+>  14:    JEQ  0,5(7) 	if: jmp to else
+> * -> return
+> * -> Function Call (gdc)
+>  20:     ST  2,-4(2) 	Guard fp
+> * -> Id
+>  21:     LD  0,-3(2) 	load id value
+> * <- Id
+>  22:     ST  0,-6(2) 	Store value of func argument
+> * -> Op
+> * -> Id
+>  23:     LD  0,-2(2) 	load id value
+> * <- Id
+>  24:     ST  0,-7(2) 	op: push left
+> * -> Op
+> * -> Op
+> * -> Id
+>  25:     LD  0,-2(2) 	load id value
+> * <- Id
+>  26:     ST  0,-8(2) 	op: push left
+> * -> Id
+>  27:     LD  0,-3(2) 	load id value
+> * <- Id
+>  28:     LD  1,-8(2) 	op: load left
+>  29:    DIV  0,1,0 	op /
+> * <- Op
+>  30:     ST  0,-8(2) 	op: push left
+> * -> Id
+>  31:     LD  0,-3(2) 	load id value
+> * <- Id
+>  32:     LD  1,-8(2) 	op: load left
+>  33:    MUL  0,1,0 	op *
+> * <- Op
+>  34:     LD  1,-7(2) 	op: load left
+>  35:    SUB  0,1,0 	op -
+> * <- Op
+>  36:     ST  0,-7(2) 	Store value of func argument
+>  37:    LDA  2,-4(2) 	change fp
+>  38:    LDC  0,40(0) 	Guard return adress
+>  39:    LDA  7,-36(7) 	jump to function
+> * <- Function Call
+>  40:    LDA  1,0(2) 	save current fp into ac1
+>  41:     LD  2,0(2) 	make fp = ofp
+>  42:     LD  7,-1(1) 	return to caller
+> * <- return
+>  19:    LDA  7,23(7) 	jmp to end
+> * <- if
+> * <- End Function
+> * -> Init Function (main)
+>   3:    LDA  7,39(7) 	jump to main
+> * -> declare var
+> * <- declare var
+> * -> declare var
+> * <- declare var
+> * -> assign
+> * -> Function Call (input)
+>  43:     IN  0,0,0 	read input
+>  44:     ST  0,-2(2) 	assign: store value
+> * <- assign
+> * -> assign
+> * -> Function Call (input)
+>  45:     IN  0,0,0 	read input
+>  46:     ST  0,-3(2) 	assign: store value
+> * <- assign
+> * -> Function Call (output)
+> * -> Function Call (gdc)
+>  47:     ST  2,-4(2) 	Guard fp
+> * -> Id
+>  48:     LD  0,-2(2) 	load id value
+> * <- Id
+>  49:     ST  0,-6(2) 	Store value of func argument
+> * -> Id
+>  50:     LD  0,-3(2) 	load id value
+> * <- Id
+>  51:     ST  0,-7(2) 	Store value of func argument
+>  52:    LDA  2,-4(2) 	change fp
+>  53:    LDC  0,55(0) 	Guard return adress
+>  54:    LDA  7,-51(7) 	jump to function
+> * <- Function Call
+>  55:    OUT  0,0,0 	print value
+> * <- End Function
+> * End of execution.
+>  56:   HALT  0,0,0 	
