@@ -25,33 +25,51 @@ newline     \n
 whitespace  [ \t]+
 %%
 "if"            {return IF;}
-
 "else"          {return ELSE;}
-"end"           {return END;}
-"repeat"        {return REPEAT;}
-"until"         {return UNTIL;}
-"read"          {return READ;}
-"write"         {return WRITE;}
-":="            {return ASSIGN;}
-"="             {return EQ;}
-"<"             {return LT;}
+"int"          {return INT;}
+"return"          {return RETURN;}
+"void"          {return VOID;}
+"while"          {return WHILE;}
+
 "+"             {return PLUS;}
 "-"             {return MINUS;}
 "*"             {return TIMES;}
 "/"             {return OVER;}
+
+"<"             {return LT;}
+"<="             {return LTE;}
+">"             {return GT;}
+">="             {return GTE;}
+"=="             {return EQ;}
+"!="             {return DIFF;}
+
+";"             {return SEMI;}
+","             {return COMMA;}
 "("             {return LPAREN;}
 ")"             {return RPAREN;}
-";"             {return SEMI;}
+"["             {return LSBRAC;}
+"]"             {return RSBRAC;}
+"{"             {return LCBRAC;}
+"}"             {return RCBRAC;}
+
 {number}        {return NUM;}
 {identifier}    {return ID;}
 {newline}       {lineno++;}
 {whitespace}    {/* skip whitespace */}
-"{"             { char c;
-                  do
-                  { c = input();
-                    if (c == EOF) break;
-                    if (c == '\n') lineno++;
-                  } while (c != '}');
+"/*"            {
+                    char c;
+                    int foundAst = 0;
+                    while (1) {
+                        c = input();
+                        if (c == EOF) break;  // Proper EOF check
+                        if (c == '*') {
+                            foundAst = 1;
+                            continue;
+                        }
+                        if (c == '/' && foundAst == 1) break;
+                        if (c == '\n') lineno++;
+                        foundAst = 0;
+                    }
                 }
 .               {return ERROR;}
 %%
