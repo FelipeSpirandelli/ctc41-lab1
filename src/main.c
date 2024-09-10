@@ -35,6 +35,7 @@ int lineno = 0;
 FILE * source;
 FILE * listing;
 FILE * code;
+FILE * redundant_source;
 
 /* allocate and set tracing flags */
 int EchoSource = TRUE;
@@ -58,7 +59,7 @@ int main( int argc, char * argv[] )
     if (strchr (pgm, '.') == NULL)
         strcat(pgm,".cm");// if no extension is given, append .cm (c minus) to the filename
     source = fopen(pgm,"r");
-    //redundant_source = fopen(pgm, "r"); <- use redundant_source to print whole lines in lex output
+    redundant_source = fopen(pgm, "r"); //<- use redundant_source to print whole lines in lex output
     if (source==NULL)
     { fprintf(stderr,"File %s not found\n",pgm);
         exit(1);

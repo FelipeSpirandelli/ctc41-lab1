@@ -62,6 +62,7 @@ void initializePrinter(const char *path, const char* baseName, FileDestination f
     if (files2open & SYN) { 
         snprintf(filename, sizeof(filename), "%s/%s_syn.txt",path, basefileName);
         fileSYN = fopen(filename, "w");
+        
     }
 
     if (files2open & TAB) { 
@@ -122,15 +123,15 @@ void fflushc() {
  * 
  */
 void pc(const char* format, ...) {
-    
+     
      if (NULL == format) {
          fprintf(stderr,"called pc( with NULL format!"); abort(); }
-    
+     
      char buffer[1000];
      va_list args;
      va_start(args, format);
-     vsprintf(buffer, format, args);
-     
+     //vsprintf(buffer, format, args);
+     vsnprintf(buffer, sizeof(buffer), format, args);
      if (currentState & ER_ & filesOpened) fprintf(fileER_, "%s", buffer);
      if (currentState & LEX & filesOpened) fprintf(fileLEX, "%s", buffer);
      if (currentState & SYN & filesOpened) fprintf(fileSYN, "%s", buffer);

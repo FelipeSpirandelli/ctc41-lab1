@@ -8,12 +8,14 @@
 
 #include "globals.h"
 #include "util.h"
+#include <stdio.h>
 
 /* Procedure printToken prints a token 
  * and its lexeme to the listing file
  */
 void printToken( TokenType token, const char* tokenString )
-{ switch (token)
+{ 
+  switch (token)
   { case IF:
     case ELSE:
     case INT:
@@ -27,7 +29,7 @@ void printToken( TokenType token, const char* tokenString )
     case MINUS: pc("-\n"); break;
     case TIMES: pc("*\n"); break;
     case OVER: pc("/\n"); break;
-
+    case ASSIGN: pc("=\n"); break;
     case LT: pc("<\n"); break;
     case LTE: pc("<=\n"); break;
     case GT: pc(">\n"); break;

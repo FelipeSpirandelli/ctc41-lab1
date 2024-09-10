@@ -14,6 +14,7 @@
 #include "globals.h"
 #include "util.h"
 #include "scan.h"
+#include <stdio.h>
 /* lexeme of identifier or reserved word */
 char tokenString[MAXTOKENLEN+1];
 %}
@@ -42,7 +43,7 @@ whitespace  [ \t]+
 ">="             {return GTE;}
 "=="             {return EQ;}
 "!="             {return DIFF;}
-
+"="             {return ASSIGN;}
 ";"             {return SEMI;}
 ","             {return COMMA;}
 "("             {return LPAREN;}
@@ -61,7 +62,7 @@ whitespace  [ \t]+
                     int foundAst = 0;
                     while (1) {
                         c = input();
-                        if (c == EOF) break;  // Proper EOF check
+                        if (c == EOF) break;
                         if (c == '*') {
                             foundAst = 1;
                             continue;
@@ -73,8 +74,8 @@ whitespace  [ \t]+
                 }
 .               {return ERROR;}
 %%
-TokenType getToken(void)
-{ static int firstTime = TRUE;
+TokenType getToken(void){
+  static int firstTime = TRUE;
   TokenType currentToken;
   if (firstTime)
   { firstTime = FALSE;
@@ -88,5 +89,6 @@ TokenType getToken(void)
     pc("\t%d: ",lineno);
     printToken(currentToken,tokenString);
   }
+  
   return currentToken;
 }
