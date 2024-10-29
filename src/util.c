@@ -101,6 +101,24 @@ TreeNode * newExpNode(ExpKind kind)
   return t;
 }
 
+/* Function newDeclNode creates a new declaration
+ * node for syntax tree construction
+ */
+TreeNode * newDeclNode(DeclKind kind)
+{ TreeNode * t = (TreeNode *) malloc(sizeof(TreeNode));
+  int i;
+  if (t==NULL)
+    pce("Out of memory error at line %d\n",lineno);
+  else {
+    for (i=0;i<MAXCHILDREN;i++) t->child[i] = NULL;
+    t->sibling = NULL;
+    t->nodekind = DeclK;
+    t->kind.decl = kind;
+    t->lineno = lineno;
+  }
+  return t;
+}
+
 /* Function copyString allocates and makes a new
  * copy of an existing string
  */
@@ -179,10 +197,37 @@ void printTree( TreeNode * tree )
           break;
       }
     }
+    else if (tree->nodekind==DeclK)
+    { switch (tree->kind.decl) {
+        case VarK:
+          pc("Var: ");
+          printToken(tree->attr.name,"\0");
+          break;
+        case FunK:
+          pc("Function: %s\n",tree->attr.name);
+          break;
+        case ParamK:
+          pc("Param: %s\n",tree->attr.name);
+          break;
+        default:
+          pce("Unknown ExpNode kind\n");
+          break;
+      }
+    }
     else pce("Unknown node kind\n");
     for (i=0;i<MAXCHILDREN;i++)
          printTree(tree->child[i]);
     tree = tree->sibling;
   }
   UNINDENT;
+}
+
+void printLine(FILE* redundant_source){
+  char line[1024];
+  char *ret = fgets(line, 1024, redundant_source);
+  // If an error occurs, or if end-of-file is reached and no characters were read, fgets returns NULL.
+  if (ret) { pc( "%d: %-1s",lineno, line); 
+             // if EOF, the string does not contain \n. add it to separate from EOF token
+             if (feof(redundant_source)) pc("\n");
+           } 
 }
