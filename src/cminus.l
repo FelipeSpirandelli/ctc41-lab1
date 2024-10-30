@@ -54,8 +54,8 @@ whitespace  [ \t\r]+
 "{"             {return LCBRAC;}
 "}"             {return RCBRAC;}
 
-{number}        {/*yylval.val = atoi(yytext)*/; return NUM;}
-{identifier}    {/*yylval.name = copyString(yytext)*/; return ID;}
+{number}        {yylval.val = atoi(yytext); return NUM;}
+{identifier}    {yylval.name = copyString(yytext); return ID;}
 {newline}       {lineno++;printLine();}
 {whitespace}    {/* skip whitespace */}
 "/*"            {

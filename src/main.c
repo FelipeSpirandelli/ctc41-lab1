@@ -79,7 +79,7 @@ int main( int argc, char * argv[] )
 #if NO_PARSE
   while (getToken()!=ENDFILE);
 #else
-  doneLEXstartSYN(); 
+  // doneLEXstartSYN(); 
   syntaxTree = parse();
   if (TraceParse) {
     fprintf(listing,"\nSyntax tree:\n");

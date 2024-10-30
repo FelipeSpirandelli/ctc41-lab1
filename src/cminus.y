@@ -31,10 +31,10 @@ int yyerror(char *);
 /* Tokens sem valores */
 %token PLUS MINUS TIMES OVER LT LTE GT GTE EQ ASSIGN DIFF SEMI COMMA LPAREN RPAREN LSBRAC RSBRAC LCBRAC RCBRAC
 %token IF ELSE WHILE
-%token VOID INT RETURN 
+%token VOID INT RETURN
 %token ERROR
 
-/* Tokens com valores */
+/* Tokens com valores*/
 %token <val> NUM
 %token <name> ID
 
@@ -42,7 +42,7 @@ int yyerror(char *);
 %type <node> programa declaracao_lista declaracao var_declaracao fun_declaracao params param_lista param composto_decl local_declaracoes statement_lista statement expressao_decl selecao_decl iteracao_decl retorno_decl expressao var simples_expressao soma_expressao termo fator ativacao args arg_lista
 %type <type> tipo_especificador
 %type <token> soma mult relacional
-
+ 
 /* utilidades */
 %start programa
 %left PLUS MINUS
@@ -98,11 +98,11 @@ var_declaracao : tipo_especificador ID SEMI
             ;
 tipo_especificador : INT 
                 {
-                    $$ = INT;
+                    $$ = Integer;
                 }
             | VOID 
                 {
-                  $$ = VOID;
+                  $$ = Void;
                 }
             ;
 
