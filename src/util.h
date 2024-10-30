@@ -26,7 +26,7 @@ TreeNode * newExpNode(ExpKind);
 /* Function newDeclNode creates a new declaration
  * node for syntax tree construction
  */
-TreeNode * newDeclNode(ExpKind kind);
+TreeNode * newDeclNode(DeclKind kind);
 /* Function copyString allocates and makes a new
  * copy of an existing string
  */
@@ -37,6 +37,6 @@ char * copyString( char * );
  */
 void printTree( TreeNode * );
 
-void printLine(FILE *redundant_source);
+// void printLine(FILE *redundant_source);
 
 #endif

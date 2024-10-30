@@ -72,13 +72,14 @@ int main( int argc, char * argv[] )
     //// end opening sources ////
     
     listing = stdout; /* send messages from main() to screen */
-    initializePrinter(detailpath, pgm, LOGALL);// init logger in /lib/log.c
+    initializePrinter(detailpath, pgm, SER);// init logger in /lib/log.c
     // for the lexical analysis, you might change LOGALL to LER, to generate only lex and err outputs.
       
   fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
 #if NO_PARSE
   while (getToken()!=ENDFILE);
 #else
+  doneLEXstartSYN(); 
   syntaxTree = parse();
   if (TraceParse) {
     fprintf(listing,"\nSyntax tree:\n");

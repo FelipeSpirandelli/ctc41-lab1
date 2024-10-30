@@ -175,6 +175,9 @@ void printTree( TreeNode * tree )
         case WriteK:
           pc("Write\n");
           break;
+        case ReturnK:
+          pc("Return\n");
+          break;
         default:
           pce("Unknown ExpNode kind\n");
           break;
@@ -191,6 +194,9 @@ void printTree( TreeNode * tree )
           break;
         case IdK:
           pc("Id: %s\n",tree->attr.name);
+          break;
+        case ActvK:
+          pc("Actv Id: %s\n",tree->attr.name);
           break;
         default:
           pce("Unknown ExpNode kind\n");
@@ -222,7 +228,7 @@ void printTree( TreeNode * tree )
   UNINDENT;
 }
 
-void printLine(FILE* redundant_source){
+/* void printLine(FILE* redundant_source){
   char line[1024];
   char *ret = fgets(line, 1024, redundant_source);
   // If an error occurs, or if end-of-file is reached and no characters were read, fgets returns NULL.
@@ -230,4 +236,4 @@ void printLine(FILE* redundant_source){
              // if EOF, the string does not contain \n. add it to separate from EOF token
              if (feof(redundant_source)) pc("\n");
            } 
-}
+}*/

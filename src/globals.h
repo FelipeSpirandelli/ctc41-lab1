@@ -26,11 +26,6 @@
 /* MAXRESERVED = the number of reserved words */
 #define MAXRESERVED 8
 
-#ifndef YYPARSER
-#include "parser.h"
-#define ENDFILE 0
-#endif
-
 typedef int TokenType;
 
 extern FILE* source; /* source code text file */
@@ -44,8 +39,8 @@ extern int lineno; /* source line number for listing */
 /**************************************************/
 
 typedef enum {StmtK,ExpK, DeclK} NodeKind;
-typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK} StmtKind;
-typedef enum {OpK,ConstK,IdK} ExpKind;
+typedef enum {IfK,RepeatK,AssignK,ReadK,WriteK,ReturnK} StmtKind;
+typedef enum {OpK,ConstK,IdK, ActvK} ExpKind; // ActvK se refere a expressões de chamadas de funções.
 typedef enum {VarK, FunK, ParamK} DeclKind;
 
 /* ExpType is used for type checking */
@@ -62,9 +57,13 @@ typedef struct treeNode
      union { TokenType op;
              int val;
              char * name; } attr;
-     ExpType type; /* for type checking of exps */
+     ExpType type; /* for type checking of exps. Also for types of declarations */
    } TreeNode;
 
+#ifndef YYPARSER
+#include "parser.h"
+#define ENDFILE 0
+#endif
 /**************************************************/
 /***********   Flags for tracing       ************/
 /**************************************************/
