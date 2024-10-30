@@ -78,6 +78,7 @@ TreeNode * newStmtNode(StmtKind kind)
     t->nodekind = StmtK;
     t->kind.stmt = kind;
     t->lineno = lineno;
+    t->arrayField = 0;
   }
   return t;
 }
@@ -97,6 +98,7 @@ TreeNode * newExpNode(ExpKind kind)
     t->kind.exp = kind;
     t->lineno = lineno;
     t->type = Void;
+    t->arrayField = 0;
   }
   return t;
 }
@@ -115,6 +117,7 @@ TreeNode * newDeclNode(DeclKind kind)
     t->nodekind = DeclK;
     t->kind.decl = kind;
     t->lineno = lineno;
+    t->arrayField = 0;
   }
   return t;
 }
@@ -163,11 +166,11 @@ void printTree( TreeNode * tree )
         case IfK:
           pc("If\n");
           break;
-        case RepeatK:
-          pc("Repeat\n");
+        case WhileK:
+          pc("While\n");
           break;
         case AssignK:
-          pc("Assign to: %s\n",tree->attr.name);
+          pc("Assign statement\n");
           break;
         case ReadK:
           pc("Read: %s\n",tree->attr.name);
@@ -193,7 +196,7 @@ void printTree( TreeNode * tree )
           pc("Const: %d\n",tree->attr.val);
           break;
         case IdK:
-          pc("Id: %s\n",tree->attr.name);
+          pc("Var: %s\n",tree->attr.name);
           break;
         case ActvK:
           pc("Actv Id: %s\n",tree->attr.name);
@@ -206,8 +209,9 @@ void printTree( TreeNode * tree )
     else if (tree->nodekind==DeclK)
     { switch (tree->kind.decl) {
         case VarK:
-          pc("Var: ");
-          printToken(tree->attr.name,"\0");
+          // pc("Var: ");
+          pc("Var: %s\n", tree->attr.name);
+          // printToken(tree->attr.name,"\0");
           break;
         case FunK:
           pc("Function: %s\n",tree->attr.name);

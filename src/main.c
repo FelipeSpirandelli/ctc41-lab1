@@ -78,8 +78,8 @@ int main( int argc, char * argv[] )
   fprintf(listing,"\nTINY COMPILATION: %s\n",pgm);
 #if NO_PARSE
   while (getToken()!=ENDFILE);
-#else
-  // doneLEXstartSYN(); 
+#else 
+  doneLEXstartSYN(); 
   syntaxTree = parse();
   if (TraceParse) {
     fprintf(listing,"\nSyntax tree:\n");

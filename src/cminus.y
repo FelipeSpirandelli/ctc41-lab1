@@ -86,14 +86,15 @@ var_declaracao : tipo_especificador ID SEMI
                     $$ = newDeclNode(VarK);
                     $$->type = $1;
                     $$->attr.name = $2;
-                    $$->attr.val = 1; // valor padrao para variaveis que não são arrays. O valor será utilizado para diferenciar arrays de não arrays.
+                    // $$->attr.val = 1; // valor padrao para variaveis que não são arrays. O valor será utilizado para diferenciar arrays de não arrays.
                 }
             | tipo_especificador ID LSBRAC NUM RSBRAC SEMI
                 {
                     $$ = newDeclNode(VarK);
                     $$->type = $1;
                     $$->attr.name = $2;
-                    $$->attr.val = $4; 
+                    // $$->attr.val = $4; 
+                    $$->arrayField = $4;
                 }
             ;
 tipo_especificador : INT 
@@ -144,14 +145,15 @@ param       : tipo_especificador ID
                   $$ = newDeclNode(ParamK);
                   $$->type = $1;
                   $$->attr.name = $2;
-                  $$->attr.val = 0; // em ParamK nodes, esse valor define se é array ou não
+                  // $$->attr.val = 0; // em ParamK nodes, esse valor define se é array ou não
                 }
             | tipo_especificador ID LSBRAC RSBRAC
                 {
                   $$ = newDeclNode(ParamK);
                   $$->type = $1;
                   $$->attr.name = $2;
-                  $$->attr.val = 1;
+                  // $$->attr.val = 1;
+                  $$->arrayField = 1; 
                 }
             ;
 composto_decl : LCBRAC local_declaracoes statement_lista RCBRAC 
@@ -248,7 +250,7 @@ selecao_decl : IF LPAREN expressao RPAREN statement %prec LOWER_THAN_ELSE
             ;
 iteracao_decl : WHILE LPAREN expressao RPAREN statement
                 {
-                  $$ = newStmtNode(RepeatK);
+                  $$ = newStmtNode(WhileK);
                   $$->child[0] = $3;
                   $$->child[1] = $5;
                 }
@@ -266,8 +268,7 @@ retorno_decl : RETURN SEMI
             ;
 expressao   : var ASSIGN expressao
                 {
-                  $$ = newExpNode(AssignK);
-                  $$->attr.op = ASSIGN;
+                  $$ = newStmtNode(AssignK);
                   $$->child[0] = $1;
                   $$->child[1] = $3;
                 }
