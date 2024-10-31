@@ -99,7 +99,7 @@ TreeNode * newExpNode(ExpKind kind)
     t->lineno = lineno;
     t->type = Void;
     t->arrayField = 0;
-    t->isFromAssign = 0;
+    //t->isFromAssign = 0;
   }
   return t;
 }
@@ -173,10 +173,10 @@ void printTree( TreeNode * tree )
         case AssignK:
           // check if var is array
           pc("Assign to ");
-          if (tree->child[0]->kind.exp == ArrayIdK) {
-            pc("array: %s\n", tree->child[0]->attr.name);
-          } else if (tree->child[0]->kind.exp == IdK) {
-            pc("var: %s\n", tree->child[0]->attr.name);
+          if (tree->arrayField == 1) {
+            pc("array: %s\n", tree->attr.name);
+          } else if (tree->arrayField == 0) {
+            pc("var: %s\n", tree->attr.name);
           } else{
             pc("unknown: %s\n", tree->attr.name);
           }
@@ -205,14 +205,14 @@ void printTree( TreeNode * tree )
           pc("Const: %d\n",tree->attr.val);
           break;
         case IdK:
-          if (!tree->isFromAssign) {
+          //if (!tree->isFromAssign) {
             pc("Id: %s\n",tree->attr.name);
-          }
+          //}
           break;
         case ArrayIdK:
-          if (!tree->isFromAssign) {
+         // if (!tree->isFromAssign) {
             pc("Id: %s\n",tree->attr.name);
-          }
+         // }
           break;
         case ActvK:
           pc("Function call: %s\n",tree->attr.name);

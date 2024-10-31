@@ -51,7 +51,7 @@ typedef enum {Void,Integer,Boolean} ExpType;
 typedef struct treeNode
    { struct treeNode * child[MAXCHILDREN];
      struct treeNode * sibling;
-     int isFromAssign;
+     // int isFromAssign;
      int lineno;
      int arrayField; // pra armazenar valores de arrays quando necessário
      NodeKind nodekind;

@@ -265,12 +265,33 @@ retorno_decl : RETURN SEMI
                   $$->child[0] = $2;
                 }
             ;
-expressao   : var ASSIGN expressao
+/*expressao   : var ASSIGN expressao
                 {
                   $$ = newStmtNode(AssignK);
                   $$->child[0] = $1;
                   $$->child[0]->isFromAssign = 1;
                   $$->child[1] = $3;
+                }
+            | simples_expressao
+                {
+                  $$ = $1;
+                }
+            ;
+*/
+expressao   : ID ASSIGN expressao
+                {
+                  $$ = newStmtNode(AssignK);
+                  $$->attr.name = $1;
+                  $$->child[1] = $3;
+                  $$->arrayField = 0;
+                }
+            | ID LSBRAC expressao RSBRAC ASSIGN expressao
+                {
+                  $$ = newStmtNode(AssignK);
+                  $$->arrayField = 1;
+                  $$->attr.name = $1;
+                  $$->child[0] = $3;
+                  $$->child[1] = $6;
                 }
             | simples_expressao
                 {
