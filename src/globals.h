@@ -40,8 +40,8 @@ extern int lineno; /* source line number for listing */
 
 typedef enum {StmtK,ExpK, DeclK} NodeKind;
 typedef enum {IfK,WhileK,AssignK,ReadK,WriteK,ReturnK} StmtKind;
-typedef enum {OpK,ConstK,IdK, ActvK} ExpKind; // ActvK se refere a expressões de chamadas de funções.
-typedef enum {VarK, FunK, ParamK} DeclKind;
+typedef enum {OpK,ConstK,IdK,ArrayIdK, ActvK} ExpKind;
+typedef enum {VarK, FunK, ParamK, ArrayK} DeclKind;
 
 /* ExpType is used for type checking */
 typedef enum {Void,Integer,Boolean} ExpType;
@@ -51,6 +51,7 @@ typedef enum {Void,Integer,Boolean} ExpType;
 typedef struct treeNode
    { struct treeNode * child[MAXCHILDREN];
      struct treeNode * sibling;
+     int isFromAssign;
      int lineno;
      int arrayField; // pra armazenar valores de arrays quando necessário
      NodeKind nodekind;

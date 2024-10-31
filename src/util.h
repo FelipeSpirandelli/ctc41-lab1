@@ -31,7 +31,7 @@ TreeNode * newDeclNode(DeclKind kind);
  * copy of an existing string
  */
 char * copyString( char * );
-
+char *getReturnTypeString(ExpType);
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
  */

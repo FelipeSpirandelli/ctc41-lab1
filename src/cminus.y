@@ -90,11 +90,11 @@ var_declaracao : tipo_especificador ID SEMI
                 }
             | tipo_especificador ID LSBRAC NUM RSBRAC SEMI
                 {
-                    $$ = newDeclNode(VarK);
+                    $$ = newDeclNode(ArrayK);
                     $$->type = $1;
                     $$->attr.name = $2;
-                    // $$->attr.val = $4; 
-                    $$->arrayField = $4;
+                    $$->child[0] = newExpNode(ConstK);
+                    $$->child[0]->attr.val = $4;
                 }
             ;
 tipo_especificador : INT 
@@ -112,8 +112,8 @@ fun_declaracao : tipo_especificador ID LPAREN params RPAREN composto_decl
                   $$ = newDeclNode(FunK);
                   $$->type = $1;
                   $$->attr.name = $2;
-                  $$->child[0] = $6;
-                  $$->child[1] = $4; // Se for null é pq nao tem parametros (ver produção abaixo)
+                  $$->child[0] = $4; // Se for null é pq nao tem parametros (ver produção abaixo)
+                  $$->child[1] = $6;
                 }
             ;
 params      : param_lista 
@@ -145,7 +145,6 @@ param       : tipo_especificador ID
                   $$ = newDeclNode(ParamK);
                   $$->type = $1;
                   $$->attr.name = $2;
-                  // $$->attr.val = 0; // em ParamK nodes, esse valor define se é array ou não
                 }
             | tipo_especificador ID LSBRAC RSBRAC
                 {
@@ -270,6 +269,7 @@ expressao   : var ASSIGN expressao
                 {
                   $$ = newStmtNode(AssignK);
                   $$->child[0] = $1;
+                  $$->child[0]->isFromAssign = 1;
                   $$->child[1] = $3;
                 }
             | simples_expressao
@@ -284,9 +284,9 @@ var         : ID
                 }
             | ID LSBRAC expressao RSBRAC
                 {
-                  $$ = newExpNode(IdK);
+                  $$ = newExpNode(ArrayIdK);
                   $$->attr.name = $1;
-                  $$->child[0] = $3; // podemos usar a child de nós do tipo IdK pra checar se é um array ou não
+                  $$->child[0] = $3;
                 }
             ;
 simples_expressao : soma_expressao relacional soma_expressao
