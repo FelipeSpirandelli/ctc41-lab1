@@ -159,7 +159,7 @@ static void printSpaces(void)
  */
 void printTree( TreeNode * tree )
 { int i;
-  INDENT;
+  //INDENT;
   while (tree != NULL) {
     printSpaces();
     if (tree->nodekind==StmtK)
@@ -231,7 +231,11 @@ void printTree( TreeNode * tree )
           pc("Declare function (return type \"%s\"): %s\n", getReturnTypeString(tree->type), tree->attr.name);
           break;
         case ParamK:
-          pc("Function param (%s var): %s\n",getReturnTypeString(tree->type),tree->attr.name);
+          if (tree->arrayField == 0) {
+            pc("Function param (%s var): %s\n",getReturnTypeString(tree->type),tree->attr.name);
+          } else {
+            pc("Function param (%s array): %s\n",getReturnTypeString(tree->type),tree->attr.name);
+          }
           break;
         case ArrayK:
           pc("Declare %s array: %s\n",getReturnTypeString(tree->type),tree->attr.name);
@@ -242,11 +246,14 @@ void printTree( TreeNode * tree )
       }
     }
     else pce("Unknown node kind\n");
-    for (i=0;i<MAXCHILDREN;i++)
-         printTree(tree->child[i]);
+    for (i=0;i<MAXCHILDREN;i++) {
+        INDENT;
+        printTree(tree->child[i]);
+        UNINDENT;
+    }
     tree = tree->sibling;
   }
-  UNINDENT;
+  //UNINDENT;
 }
 
 /* void printLine(FILE* redundant_source){
