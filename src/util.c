@@ -190,6 +190,9 @@ void printTree( TreeNode * tree )
         case ReturnK:
           pc("Return\n");
           break;
+        case BlockK:
+          pc("Block\n");
+          break;
         default:
           pce("Unknown ExpNode kind\n");
           break;

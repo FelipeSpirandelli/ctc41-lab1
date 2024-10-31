@@ -39,7 +39,8 @@ int yyerror(char *);
 %token <name> ID
 
 /* Símbolos não terminais */ 
-%type <node> programa declaracao_lista declaracao var_declaracao fun_declaracao params param_lista param composto_decl local_declaracoes statement_lista statement expressao_decl selecao_decl iteracao_decl retorno_decl expressao var simples_expressao soma_expressao termo fator ativacao args arg_lista
+%type <node> programa declaracao_lista declaracao var_declaracao fun_declaracao params param_lista param composto_decl declaracoes_e_statements_e_blocks declaracao_ou_statement_ou_block statement_nao_composto statement expressao_decl selecao_decl iteracao_decl retorno_decl expressao var simples_expressao soma_expressao termo fator ativacao args arg_lista
+//%type <node> programa declaracao_lista declaracao var_declaracao fun_declaracao params param_lista param composto_decl local_declaracoes statement_lista statement expressao_decl selecao_decl iteracao_decl retorno_decl expressao var simples_expressao soma_expressao termo fator ativacao args arg_lista
 %type <type> tipo_especificador
 %type <token> soma mult relacional
  
@@ -155,7 +156,42 @@ param       : tipo_especificador ID
                   $$->arrayField = 1; 
                 }
             ;
-composto_decl : LCBRAC local_declaracoes statement_lista RCBRAC 
+composto_decl : LCBRAC declaracoes_e_statements_e_blocks RCBRAC
+                {
+                    $$ = $2;
+                }
+            ;
+declaracoes_e_statements_e_blocks : declaracoes_e_statements_e_blocks declaracao_ou_statement_ou_block
+                {
+                  TreeNode* t = $1;
+                  if (t != NULL) {
+                      while (t->sibling != NULL) t = t->sibling;
+                      t->sibling = $2;
+                      $$ = $1;
+                  } else {
+                      $$ = $2;
+                  }
+                }
+            | // vazio
+                {
+                    $$ = NULL;
+                }
+            ;
+declaracao_ou_statement_ou_block : var_declaracao
+                {
+                    $$ = $1;
+                }
+            | statement_nao_composto
+                {
+                    $$ = $1;
+                }
+            | LCBRAC declaracoes_e_statements_e_blocks RCBRAC
+                {
+                    $$ = newStmtNode(BlockK);
+                    $$->child[0] = $2;
+                }
+            ;
+/*composto_decl : LCBRAC local_declaracoes statement_lista RCBRAC 
                 {
                   // tentando fazer append lado a lado
                   TreeNode* t = $2;
@@ -168,8 +204,8 @@ composto_decl : LCBRAC local_declaracoes statement_lista RCBRAC
                     $$ = $3;
                   }
                 }
-            ;
-local_declaracoes : local_declaracoes var_declaracao 
+            ;*/
+/*local_declaracoes : local_declaracoes var_declaracao 
                 {
                   TreeNode* t = $1;
                   if (t != NULL) {
@@ -185,8 +221,8 @@ local_declaracoes : local_declaracoes var_declaracao
                 {
                   $$ = NULL;
                 }
-            ;
-statement_lista : statement_lista statement 
+            ;*/
+/*statement_lista : statement_lista statement 
                 {
                   TreeNode* t = $1;
                   if (t != NULL) {
@@ -202,6 +238,23 @@ statement_lista : statement_lista statement
                 {
                   $$ = NULL;
                 } 
+            ;*/
+statement_nao_composto : expressao_decl
+                {
+                  $$ = $1;
+                }
+            | selecao_decl
+                {
+                  $$ = $1;
+                }
+            | iteracao_decl
+                {
+                  $$ = $1;
+                }
+            | retorno_decl
+                {
+                  $$ = $1;
+                }
             ;
 statement   : expressao_decl
                 {
