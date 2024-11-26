@@ -28,39 +28,90 @@
 
 typedef int TokenType;
 
-extern FILE* source; /* source code text file */
-extern FILE* listing; /* listing output text file */
-extern FILE* code; /* code text file for TM simulator */
-extern FILE* redundant_source;
+extern FILE *source;  /* source code text file */
+extern FILE *listing; /* listing output text file */
+extern FILE *code;    /* code text file for TM simulator */
+extern FILE *redundant_source;
 extern int lineno; /* source line number for listing */
 
 /**************************************************/
 /***********   Syntax tree for parsing ************/
 /**************************************************/
 
-typedef enum {StmtK,ExpK, DeclK} NodeKind;
-typedef enum {IfK,WhileK,AssignK,ReadK,WriteK,ReturnK, BlockK} StmtKind;
-typedef enum {OpK,ConstK,IdK,ArrayIdK, ActvK} ExpKind;
-typedef enum {VarK, FunK, ParamK, ArrayK} DeclKind;
+typedef enum
+{
+  StmtK,
+  ExpK,
+  DeclK
+} NodeKind;
+
+// Statment => If | While | Assign | Read | Write | Return | Block
+// Change of scope => If | While | Block
+// Usually nodes with children
+typedef enum
+{
+  IfK,
+  WhileK,
+  AssignK,
+  ReadK,
+  WriteK,
+  ReturnK,
+  BlockK
+} StmtKind;
+
+// Expression => Op | Const | Id | ArrayId | Actv
+// Arithmetic expresions
+typedef enum
+{
+  OpK,
+  ConstK,
+  IdK,
+  ArrayIdK,
+  ActvK
+} ExpKind;
+
+// Declaration => Var | Fun | Param | Array
+// Change of scope => Fun
+typedef enum
+{
+  VarK,
+  FunK,
+  ParamK,
+  ArrayK
+} DeclKind;
 
 /* ExpType is used for type checking */
-typedef enum {Void,Integer,Boolean} ExpType;
+typedef enum
+{
+  Void,
+  Integer,
+  Boolean
+} ExpType;
 
 #define MAXCHILDREN 3
 
 typedef struct treeNode
-   { struct treeNode * child[MAXCHILDREN];
-     struct treeNode * sibling;
-     // int isFromAssign;
-     int lineno;
-     int arrayField; // pra armazenar valores de arrays quando necessário
-     NodeKind nodekind;
-     union { StmtKind stmt; ExpKind exp; DeclKind decl;} kind;
-     union { TokenType op;
-             int val;
-             char * name; } attr;
-     ExpType type; /* for type checking of exps. Also for types of declarations */
-   } TreeNode;
+{
+  struct treeNode *child[MAXCHILDREN];
+  struct treeNode *sibling;
+  // int isFromAssign;
+  int lineno;
+  int arrayField; // pra armazenar valores de arrays quando necessário
+  NodeKind nodekind;
+  union
+  {
+    StmtKind stmt;
+    ExpKind exp;
+    DeclKind decl;
+  } kind; // uses new<type>Node on ./utils.c to create
+  union
+  {
+    TokenType op;
+    int val;
+    char *name;
+  } attr; // Usually used for regex
+  ExpType type; /* for type checking of exps. Also for types of declarations */
+} TreeNode;
 
 #ifndef YYPARSER
 #include "parser.h"
@@ -99,5 +150,5 @@ extern int TraceAnalyze;
 extern int TraceCode;
 
 /* Error = TRUE prevents further passes if an error occurs */
-extern int Error; 
+extern int Error;
 #endif
