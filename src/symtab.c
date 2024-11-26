@@ -75,22 +75,21 @@ typedef struct ScopeBucketListRec
 /* the hash table */
 static ScopeBucketList hashTable[SIZE];
 
-
 /* Procedure st_insert inserts line numbers and
  * memory locations into the symbol table
  * loc = memory location is inserted only the
  * first time, otherwise ignored
  */
-void st_insert(char *scope, char* parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
+void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
 {
-  pc("Inserting %s in %s\n", name, scope);
+  // pc("Inserting %s in %s\n", name, scope);
   ScopeBucketList s = st_scope_insert(scope, parentScope);
   st_symbol_insert(s, name, lineno, loc, idType, expType, isSameScope);
 } /* st_insert */
 
-ScopeBucketList st_scope_insert(char *scope, char* parentScope)
+ScopeBucketList st_scope_insert(char *scope, char *parentScope)
 {
-
+  // pc("Creating scope %s with parent %s\n", scope, parentScope);
   // find parent
   int parentHash = hash(parentScope);
   ScopeBucketList parent = hashTable[parentHash];
@@ -103,7 +102,7 @@ ScopeBucketList st_scope_insert(char *scope, char* parentScope)
     s = s->next;
   if (s == NULL) /* scope not yet in table */
   {
-    pc("Inserting scope %s\n", scope);
+    // pc("Inserting scope %s\n", scope);
     s = (ScopeBucketList)malloc(sizeof(struct ScopeBucketListRec));
     s->scopeName = strdup(scope);
     for (int i = 0; i < SIZE; i++)
@@ -114,26 +113,29 @@ ScopeBucketList st_scope_insert(char *scope, char* parentScope)
     s->parent = parent;
     hashTable[scopeHash] = s;
   }
-  else
-  {
-    pc("Scope %s already in table\n", scope);
-  }
+  // else
+  // {
+  //   pc("Scope %s already in table\n", scope);
+  // }
   return s;
 }
 
 BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
 {
+  // pc("Looking for %s in line %d\n", name, lineno);
   int nameHash = hash(name);
   BucketList l = NULL;
   ScopeBucketList s = curScope;
-  while(s != NULL) {
+  while (s != NULL)
+  {
     l = s->hashTable[nameHash];
-    pc("Looking for %s in %s\n", name, s->scopeName);
+    // pc("Looking for %s in scope %s\n", name, s->scopeName);
     while ((l != NULL) && (strcmp(name, l->name) != 0))
       l = l->next;
     if (l != NULL)
       break;
-    if(isSameScope) {
+    if (isSameScope)
+    {
       break;
     }
     s = s->parent;
@@ -151,22 +153,28 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
     l->next = curScope->hashTable[nameHash];
     curScope->hashTable[nameHash] = l;
   }
-  else if(l == NULL && !isSameScope) {
+  else if (l == NULL && !isSameScope)
+  {
     pc("ERROR: Variable %s not declared on scope or parent scope with name %s\n", name, curScope->scopeName);
     return NULL;
   }
-  else if(l != NULL && isSameScope) {
+  else if (l != NULL && isSameScope)
+  {
     pc("ERROR: Variable %s already declared\n", name);
     return NULL;
   }
-  else/* found in table, so just add line number */
+  else /* found in table, so just add line number */
   {
+    // pc("Found %s in %s line %d\n", name, s->scopeName, lineno);
     LineList t = l->lines;
     while (t->next != NULL)
       t = t->next;
-    t->next = (LineList)malloc(sizeof(struct LineListRec));
-    t->next->lineno = lineno;
-    t->next->next = NULL;
+    if (t->lineno != lineno)
+    {
+      t->next = (LineList)malloc(sizeof(struct LineListRec));
+      t->next->lineno = lineno;
+      t->next->next = NULL;
+    }
   }
   return l;
 }
@@ -176,21 +184,26 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
  */
 int st_lookup(char *scope, char *name, int isSameScope)
 {
-    int nameHash = hash(name);
+  int nameHash = hash(name);
   int scopeHash = hash(scope);
   ScopeBucketList s = hashTable[scopeHash];
 
   while (s != NULL)
   {
+    // pc("Looking for %s in scope %s\n", name, s->scopeName);
     BucketList l = s->hashTable[nameHash];
     while ((l != NULL) && (strcmp(name, l->name) != 0))
       l = l->next;
     if (l != NULL)
       return l->memloc;
-    if(isSameScope) {
+    if (isSameScope)
+    {
       break;
     }
     s = s->parent;
+  }
+  if(!isSameScope){
+    pc("ERROR: Variable %s not declared on scope %s or parents\n", name, scope);
   }
   return -1;
 }
@@ -218,13 +231,13 @@ void printSymTab()
             while (l != NULL)
             {
               LineList t = l->lines;
-              pc("%-14s  ", l->name);
+              pc("%-14s ", l->name);
               pc("%-8s  ", s->scopeName);
               pc("%-7s  ", getDeclKindString(l->idType));
               pc("%-9s  ", getExpTypeString(l->expType));
               while (t != NULL)
               {
-                pc("%4d ", t->lineno);
+                pc("%2d ", t->lineno);
                 t = t->next;
               }
               pc("\n");

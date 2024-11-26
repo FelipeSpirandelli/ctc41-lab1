@@ -98,6 +98,7 @@ int main(int argc, char *argv[])
 #if !NO_ANALYZE
   if (!Error)
   {
+   doneSYNstartTAB();
     if (TraceAnalyze)
       fprintf(listing, "\nBuilding Symbol Table...\n");
     buildSymtab(syntaxTree);

@@ -183,7 +183,7 @@ char* getDeclKindString(DeclKind kind) {
   case FunK:
     return "fun";
   case ArrayK:
-    return "arr";
+    return "array";
   default:
     return "unknown";
   }
