@@ -1,3 +1,3 @@
-cmake .. -DDOPARSE=FALSE
+cmake .. -DDOPARSE=TRUE
 make 
 

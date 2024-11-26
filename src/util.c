@@ -78,6 +78,7 @@ TreeNode * newStmtNode(StmtKind kind)
     t->nodekind = StmtK;
     t->kind.stmt = kind;
     t->lineno = lineno;
+    t->arrayField = 0;
   }
   return t;
 }
@@ -97,6 +98,27 @@ TreeNode * newExpNode(ExpKind kind)
     t->kind.exp = kind;
     t->lineno = lineno;
     t->type = Void;
+    t->arrayField = 0;
+    //t->isFromAssign = 0;
+  }
+  return t;
+}
+
+/* Function newDeclNode creates a new declaration
+ * node for syntax tree construction
+ */
+TreeNode * newDeclNode(DeclKind kind)
+{ TreeNode * t = (TreeNode *) malloc(sizeof(TreeNode));
+  int i;
+  if (t==NULL)
+    pce("Out of memory error at line %d\n",lineno);
+  else {
+    for (i=0;i<MAXCHILDREN;i++) t->child[i] = NULL;
+    t->sibling = NULL;
+    t->nodekind = DeclK;
+    t->kind.decl = kind;
+    t->lineno = lineno;
+    t->arrayField = 0;
   }
   return t;
 }
@@ -137,25 +159,39 @@ static void printSpaces(void)
  */
 void printTree( TreeNode * tree )
 { int i;
-  INDENT;
+  //INDENT;
   while (tree != NULL) {
     printSpaces();
     if (tree->nodekind==StmtK)
     { switch (tree->kind.stmt) {
         case IfK:
-          pc("If\n");
+          pc("Conditional selection\n");
           break;
-        case RepeatK:
-          pc("Repeat\n");
+        case WhileK:
+          pc("Iteration (loop)\n");
           break;
         case AssignK:
-          pc("Assign to: %s\n",tree->attr.name);
+          // check if var is array
+          pc("Assign to ");
+          if (tree->arrayField == 1) {
+            pc("array: %s\n", tree->attr.name);
+          } else if (tree->arrayField == 0) {
+            pc("var: %s\n", tree->attr.name);
+          } else{
+            pc("unknown: %s\n", tree->attr.name);
+          }
           break;
         case ReadK:
           pc("Read: %s\n",tree->attr.name);
           break;
         case WriteK:
           pc("Write\n");
+          break;
+        case ReturnK:
+          pc("Return\n");
+          break;
+        case BlockK:
+          pc("Block\n");
           break;
         default:
           pce("Unknown ExpNode kind\n");
@@ -172,7 +208,40 @@ void printTree( TreeNode * tree )
           pc("Const: %d\n",tree->attr.val);
           break;
         case IdK:
-          pc("Id: %s\n",tree->attr.name);
+          //if (!tree->isFromAssign) {
+            pc("Id: %s\n",tree->attr.name);
+          //}
+          break;
+        case ArrayIdK:
+         // if (!tree->isFromAssign) {
+            pc("Id: %s\n",tree->attr.name);
+         // }
+          break;
+        case ActvK:
+          pc("Function call: %s\n",tree->attr.name);
+          break;
+        default:
+          pce("Unknown ExpNode kind\n");
+          break;
+      }
+    }
+    else if (tree->nodekind==DeclK)
+    { switch (tree->kind.decl) {
+        case VarK:
+          pc("Declare %s var: %s\n", getReturnTypeString(tree->type),tree->attr.name);
+          break;
+        case FunK:
+          pc("Declare function (return type \"%s\"): %s\n", getReturnTypeString(tree->type), tree->attr.name);
+          break;
+        case ParamK:
+          if (tree->arrayField == 0) {
+            pc("Function param (%s var): %s\n",getReturnTypeString(tree->type),tree->attr.name);
+          } else {
+            pc("Function param (%s array): %s\n",getReturnTypeString(tree->type),tree->attr.name);
+          }
+          break;
+        case ArrayK:
+          pc("Declare %s array: %s\n",getReturnTypeString(tree->type),tree->attr.name);
           break;
         default:
           pce("Unknown ExpNode kind\n");
@@ -180,9 +249,35 @@ void printTree( TreeNode * tree )
       }
     }
     else pce("Unknown node kind\n");
-    for (i=0;i<MAXCHILDREN;i++)
-         printTree(tree->child[i]);
+    for (i=0;i<MAXCHILDREN;i++) {
+        INDENT;
+        printTree(tree->child[i]);
+        UNINDENT;
+    }
     tree = tree->sibling;
   }
-  UNINDENT;
+  //UNINDENT;
+}
+
+/* void printLine(FILE* redundant_source){
+  char line[1024];
+  char *ret = fgets(line, 1024, redundant_source);
+  // If an error occurs, or if end-of-file is reached and no characters were read, fgets returns NULL.
+  if (ret) { pc( "%d: %-1s",lineno, line); 
+             // if EOF, the string does not contain \n. add it to separate from EOF token
+             if (feof(redundant_source)) pc("\n");
+           } 
+}*/
+
+char *getReturnTypeString(ExpType type) {
+  switch (type) {
+    case Void:
+      return "void";
+    case Integer:
+      return "int";
+    case Boolean:
+      return "boolean";
+    default:
+      return "unknown";
+  }
 }

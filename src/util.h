@@ -23,14 +23,20 @@ TreeNode * newStmtNode(StmtKind);
  */
 TreeNode * newExpNode(ExpKind);
 
+/* Function newDeclNode creates a new declaration
+ * node for syntax tree construction
+ */
+TreeNode * newDeclNode(DeclKind kind);
 /* Function copyString allocates and makes a new
  * copy of an existing string
  */
 char * copyString( char * );
-
+char *getReturnTypeString(ExpType);
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees
  */
 void printTree( TreeNode * );
+
+// void printLine(FILE *redundant_source);
 
 #endif
