@@ -32,6 +32,8 @@ whitespace  [ \t\r]+
 "return"          {return RETURN;}
 "void"          {return VOID;}
 "while"          {return WHILE;}
+"input"           {return INPUT;}
+"output"        {return OUTPUT;}
 
 "+"             {return PLUS;}
 "-"             {return MINUS;}

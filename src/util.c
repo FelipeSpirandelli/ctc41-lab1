@@ -93,6 +93,8 @@ void printToken(TokenType token, const char *tokenString)
         "NUM, val= %s\n", tokenString);
     break;
   case ID:
+  case INPUT:
+  case OUTPUT:
     pc(
         "ID, name= %s\n", tokenString);
     break;

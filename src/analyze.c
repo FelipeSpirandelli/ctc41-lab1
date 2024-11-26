@@ -150,7 +150,7 @@ static void insertNode(TreeNode *t)
     case FunK:
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 1) == -1)
       {
-        // pc("Inserting fun %s in %s\n", t->attr.name, contextStack[contextLevel]->scopeName);
+        pc("Inserting fun %s in %s in line %d\n", t->attr.name, contextStack[contextLevel]->scopeName, t->lineno);
         st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, location++, t->kind.stmt, t->type, 1);
       }
       contextStack[contextLevel + 1] = newContext(concatStrings(contextStack[contextLevel]->scopeName, t->attr.name));
@@ -195,6 +195,7 @@ char *getParentScope()
 void buildSymtab(TreeNode *syntaxTree)
 {
   contextStack[contextLevel] = newContext(GLOBAL_SCOPE);
+  insertInputOutput();
   traverse(syntaxTree, insertNode, postProcScope);
   if (TraceAnalyze)
   {

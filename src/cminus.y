@@ -32,6 +32,7 @@ int yyerror(char *);
 %token PLUS MINUS TIMES OVER LT LTE GT GTE EQ ASSIGN DIFF SEMI COMMA LPAREN RPAREN LSBRAC RSBRAC LCBRAC RCBRAC
 %token IF ELSE WHILE
 %token VOID INT RETURN
+%token INPUT OUTPUT
 %token ERROR
 
 /* Tokens com valores*/
@@ -447,7 +448,20 @@ fator       : LPAREN expressao RPAREN
                   $$->attr.val  = $1;
                 }
             ;
-ativacao    : ID LPAREN args RPAREN
+ativacao    : INPUT LPAREN RPAREN
+                {
+                  $$ = newExpNode(ActvK);
+                  $$->attr.name = "input";
+                  $$->type = 1;
+                }
+              | OUTPUT LPAREN args RPAREN
+                {
+                  $$ = newExpNode(ActvK);
+                  $$->attr.name = "output";
+                  $$->type = 0;
+                  $$->child[0] = $3;
+                }
+              | ID LPAREN args RPAREN
                 {
                   $$ = newExpNode(ActvK);
                   $$->attr.name = $1;

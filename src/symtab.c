@@ -167,13 +167,19 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
   {
     // pc("Found %s in %s line %d\n", name, s->scopeName, lineno);
     LineList t = l->lines;
-    while (t->next != NULL)
-      t = t->next;
-    if (t->lineno != lineno)
-    {
-      t->next = (LineList)malloc(sizeof(struct LineListRec));
-      t->next->lineno = lineno;
-      t->next->next = NULL;
+    if( t == NULL) {
+      l->lines = (LineList)malloc(sizeof(struct LineListRec));
+      l->lines->lineno = lineno;
+      l->lines->next = NULL;
+    } else {
+      while (t->next != NULL)
+        t = t->next;
+      if (t->lineno != lineno)
+      {
+        t->next = (LineList)malloc(sizeof(struct LineListRec));
+        t->next->lineno = lineno;
+        t->next->next = NULL;
+      }
     }
   }
   return l;
@@ -206,6 +212,37 @@ int st_lookup(char *scope, char *name, int isSameScope)
     pc("ERROR: Variable %s not declared on scope %s or parents\n", name, scope);
   }
   return -1;
+}
+
+void insertInputOutput() {
+  ScopeBucketList s = st_scope_insert(GLOBAL_SCOPE, PROTECTED_SCOPE);
+  int inputHash = hash("input");
+  int outputHash = hash("output");
+  BucketList input = s->hashTable[inputHash];
+  BucketList output = s->hashTable[outputHash];
+  if (input == NULL)
+  {
+    input = (BucketList)malloc(sizeof(struct BucketListRec));
+    input->name = strdup("input");
+    input->lines = NULL;
+    input->memloc = 0;
+    input->idType = FunK;
+    input->expType = Integer;
+    input->next = s->hashTable[inputHash];
+    s->hashTable[inputHash] = input;
+  }
+  if (output == NULL)
+  {
+    output = (BucketList)malloc(sizeof(struct BucketListRec));
+    output->name = strdup("output");
+    output->lines = NULL;
+    output->memloc = 0;
+    output->idType = FunK;
+    output->expType = Void;
+    output->next = s->hashTable[outputHash];
+    s->hashTable[outputHash] = output;
+  }
+
 }
 
 /* Procedure printSymTab prints a formatted
