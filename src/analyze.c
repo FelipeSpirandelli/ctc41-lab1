@@ -7,6 +7,7 @@
 #define MAX_SCOPE_LEVEL 100
 static int location = 0;
 
+static int hasMainAppeared = 0;
 static int contextLevel = 0;
 typedef struct Context
 {
@@ -229,19 +230,7 @@ static void checkNode(TreeNode *t)
   case ExpK:
     switch (t->kind.exp)
     {
-    case OpK:
-      if ((t->child[0]->type != Integer) ||
-          (t->child[1]->type != Integer))
-        typeError(t, "Op applied to non-integer");
-      // if ((t->attr.op == EQ) || (t->attr.op == LT))
-      //   t->type = Boolean;
-      // else
-      //   t->type = Integer;
-      break;
-    case ConstK:
-    case IdK:
-      t->type = Integer;
-      break;
+
     default:
       break;
     }
@@ -249,26 +238,29 @@ static void checkNode(TreeNode *t)
   case StmtK:
     switch (t->kind.stmt)
     {
-    case IfK:
-      if (t->child[0]->type == Integer)
-        typeError(t->child[0], "if test is not Boolean");
-      break;
-    case AssignK:
-      if (t->child[0]->type != Integer)
-        typeError(t->child[0], "assignment of non-integer value");
-      break;
-    case WriteK:
-      if (t->child[0]->type != Integer)
-        typeError(t->child[0], "write of non-integer value");
-      break;
-    // case RepeatK:
-    //   if (t->child[1]->type == Integer)
-    //     typeError(t->child[1], "repeat test is not Boolean");
-    //   break;
+      case AssignK:
+        if (t->child[1]->nodekind == ExpK && t->child[1]->kind.exp == ActvK)
+        {
+          ExpType type = getExpTypeOfSymbol(GLOBAL_SCOPE, t->child[1]->attr.name);
+          if(type != -1 && type != Integer)
+            pce("Semantic error at line %d: invalid use of void expression\n", t->lineno, getExpTypeOfSymbol(GLOBAL_SCOPE));
+        }
+        break;
     default:
       break;
     }
     break;
+  case DeclK:
+    switch (t->kind.decl)
+    {
+    case FunK:
+      if(strcmp(t->attr.name, "main") == 0) {
+        hasMainAppeared = 1;
+      }
+      break;
+    default:
+      break;
+    }
   default:
     break;
   }
@@ -279,5 +271,9 @@ static void checkNode(TreeNode *t)
  */
 void typeCheck(TreeNode *syntaxTree)
 {
-  // traverse(syntaxTree, nullProc, checkNode);
+  traverse(syntaxTree, nullProc, checkNode);
+  if(!hasMainAppeared) {
+    pce("Semantic error: undefined reference to 'main'\n");
+    Error = TRUE;
+  }
 }

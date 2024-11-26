@@ -284,6 +284,24 @@ void insertInputOutput() {
 
 }
 
+ExpType getExpTypeOfSymbol(char *scope, char *name) {
+  int nameHash = hash(name);
+  int scopeHash = hash(scope);
+  ScopeBucketList s = hashTable[scopeHash];
+
+  while (s != NULL)
+  {
+    BucketList l = s->hashTable[nameHash];
+    while ((l != NULL) && (strcmp(name, l->name) != 0))
+      l = l->next;
+    if (l != NULL){
+      return l->expType;
+    }
+    s = s->parent;
+  }
+  return -1;
+}
+
 /* Procedure printSymTab prints a formatted
  * list of the symbol table contents
  */
