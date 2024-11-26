@@ -43,9 +43,10 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
 /* Function st_lookup returns the memory
  * location of a variable or -1 if not found
  */
-int st_lookup(char *scope, char *name, int isSameScope);
+int st_lookup(char *scope, char *name, int isSameScope, DeclKind idType);
 
 void checkReturn(char *scope, int isNull);
+ScopeBucketList findHashOfGlobal();
 
 /* Procedure printSymTab prints a formatted
  * list of the symbol table contents

@@ -143,6 +143,10 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
   }
   if (l == NULL && isSameScope) /* variable not yet in table */
   {
+    if(expType == Void && idType != FunK) {
+      pce("Semantic error at line %d: variable declared void\n", lineno, name);
+      return NULL;
+    }
     l = (BucketList)malloc(sizeof(struct BucketListRec));
     l->name = strdup(name);
     l->lines = (LineList)malloc(sizeof(struct LineListRec));
@@ -161,7 +165,7 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
   }
   else if (l != NULL && isSameScope)
   {
-    pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno, name);
+    pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno - 1, name);
     return NULL;
   }
   else /* found in table, so just add line number */
@@ -189,7 +193,7 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
 /* Function st_lookup returns the memory
  * location of a variable or -1 if not found
  */
-int st_lookup(char *scope, char *name, int isSameScope)
+int st_lookup(char *scope, char *name, int isSameScope, DeclKind idType)
 {
   int nameHash = hash(name);
   int scopeHash = hash(scope);
@@ -202,19 +206,21 @@ int st_lookup(char *scope, char *name, int isSameScope)
     while ((l != NULL) && (strcmp(name, l->name) != 0))
       l = l->next;
     if (l != NULL){
-      if(isSameScope) {
-        pce("Semantic error at line %d: '%s' was already declared as a %s\n", lineno, name, getExpTypeString(l->expType));
+      if(isSameScope){
+        if(strcmp(s->scopeName, scope) == 0 || (strcmp(s->scopeName, scope) != 0 && l->idType != idType && (l->idType == FunK || idType == FunK)))
+          pce("Semantic error at line %d: '%s' was already declared as a %s\n", lineno - 1, name, getDeclKindString(l->idType));
+        else
+          return -1;
       }
       return l->memloc;
     }
-    if (isSameScope)
-    {
-      break;
-    }
+    // if(isSameScope) {
+    //   break;
+    // }
     s = s->parent;
   }
   if(!isSameScope){
-    pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno, name);
+    pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno - 1, name);
   }
   return -1;
 }
@@ -222,15 +228,29 @@ int st_lookup(char *scope, char *name, int isSameScope)
 void checkReturn(char *scope, int isNull) {
   int scopeHash = hash(scope);
   ScopeBucketList s = hashTable[scopeHash];
+  ScopeBucketList global = findHashOfGlobal();
+
   while ((s != NULL) && (strcmp(scope, s->scopeName) != 0))
     s = s->next;
-  
+
+  while(s->parent != global){
+    s = s->parent;
+  }  
+
   if(s->returnType == Void && !isNull) {
     pce("Semantic error at line %d: Function '%s' must not return a value\n", lineno, scope);
   } else if(s->returnType != Void && isNull) {
     pce("Semantic error at line %d: Function '%s' must return a value\n", lineno, scope);
   }
 
+}
+
+ScopeBucketList findHashOfGlobal() {
+  int scopeHash = hash(GLOBAL_SCOPE);
+  ScopeBucketList s = hashTable[scopeHash];
+  while ((s != NULL) && (strcmp(GLOBAL_SCOPE, s->scopeName) != 0))
+    s = s->next;
+  return s;
 }
 
 void insertInputOutput() {

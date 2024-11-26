@@ -109,15 +109,21 @@ tipo_especificador : INT
                 }
             ;
 
-fun_declaracao : tipo_especificador ID LPAREN params RPAREN composto_decl 
-                {
-                  $$ = newDeclNode(FunK);
-                  $$->type = $1;
-                  $$->attr.name = $2;
-                  $$->child[0] = $4; // Se for null é pq nao tem parametros (ver produção abaixo)
-                  $$->child[1] = $6;
+fun_declaracao:
+              tipo_especificador ID
+                <val>{                      // Place the type tag before the action
+                  $$ = lineno;              // Mid-rule action to store the line number
                 }
-            ;
+              LPAREN params RPAREN composto_decl
+              {
+                $$ = newDeclNode(FunK);
+                $$->lineno = $3;            // Use the mid-rule action's typed value
+                $$->type = $1;              // tipo_especificador
+                $$->attr.name = $2;         // ID
+                $$->child[0] = $5;          // params
+                $$->child[1] = $7;          // composto_decl
+              }
+;
 params      : param_lista 
                 {
                   $$ = $1;
