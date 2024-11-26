@@ -36,7 +36,7 @@ static void traverse(TreeNode *t,
 {
   if (t != NULL)
   {
-    // pc("Traversing line %d with kind %d \n", t->lineno, t->nodekind);
+    pc("Traversing line %d with kind %d \n", t->lineno, t->nodekind);
     preProc(t);
     {
       int i;
@@ -110,17 +110,17 @@ static void insertNode(TreeNode *t)
     case WhileK:
       contextStack[contextLevel + 1] = newContext(getStackName(contextStack[contextLevel]->scopeName, "W", contextStack[contextLevel]->countOfWhile++));
       contextLevel++;
-      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope());
+      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->type);
       break;
     case IfK:
       contextStack[contextLevel + 1] = newContext(getStackName(contextStack[contextLevel]->scopeName, "I", contextStack[contextLevel]->countOfIf++));
       contextLevel++;
-      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope());
+      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->type);
       break;
     case BlockK:
       contextStack[contextLevel + 1] = newContext(getStackName(contextStack[contextLevel]->scopeName, "B", contextStack[contextLevel]->countOfBlock++));
       contextLevel++;
-      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope());
+      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->type);
       break;
     case AssignK:
       // case ReadK: Not used on the grammar
@@ -130,6 +130,9 @@ static void insertNode(TreeNode *t)
         // pc("Inserting %s in %s line %d\n", t->attr.name, contextStack[contextLevel]->scopeName, t->lineno);
         st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 0, t->kind.stmt, t->type, 0);
       }
+      break;
+    case ReturnK:
+      checkReturn(contextStack[contextLevel]->scopeName, t->child[0] == NULL);
       break;
     default:
       break;
@@ -155,7 +158,7 @@ static void insertNode(TreeNode *t)
       }
       contextStack[contextLevel + 1] = newContext(concatStrings(contextStack[contextLevel]->scopeName, t->attr.name));
       contextLevel++;
-      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope());
+      st_scope_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->type);
     default:
       break;
     }

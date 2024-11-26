@@ -67,6 +67,7 @@ typedef struct BucketListRec
 typedef struct ScopeBucketListRec
 {
   char *scopeName;
+  ExpType returnType;
   BucketList hashTable[SIZE];
   struct ScopeBucketListRec *next;
   struct ScopeBucketListRec *parent;
@@ -83,11 +84,11 @@ static ScopeBucketList hashTable[SIZE];
 void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
 {
   // pc("Inserting %s in %s\n", name, scope);
-  ScopeBucketList s = st_scope_insert(scope, parentScope);
+  ScopeBucketList s = st_scope_insert(scope, parentScope, 0);
   st_symbol_insert(s, name, lineno, loc, idType, expType, isSameScope);
 } /* st_insert */
 
-ScopeBucketList st_scope_insert(char *scope, char *parentScope)
+ScopeBucketList st_scope_insert(char *scope, char *parentScope, ExpType returnType)
 {
   // pc("Creating scope %s with parent %s\n", scope, parentScope);
   // find parent
@@ -109,6 +110,7 @@ ScopeBucketList st_scope_insert(char *scope, char *parentScope)
     {
       s->hashTable[i] = NULL;
     }
+    s->returnType = returnType;
     s->next = hashTable[scopeHash];
     s->parent = parent;
     hashTable[scopeHash] = s;
@@ -122,7 +124,6 @@ ScopeBucketList st_scope_insert(char *scope, char *parentScope)
 
 BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
 {
-  // pc("Looking for %s in line %d\n", name, lineno);
   int nameHash = hash(name);
   BucketList l = NULL;
   ScopeBucketList s = curScope;
@@ -160,7 +161,7 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
   }
   else if (l != NULL && isSameScope)
   {
-    pc("ERROR: Variable %s already declared\n", name);
+    pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno, name);
     return NULL;
   }
   else /* found in table, so just add line number */
@@ -200,8 +201,12 @@ int st_lookup(char *scope, char *name, int isSameScope)
     BucketList l = s->hashTable[nameHash];
     while ((l != NULL) && (strcmp(name, l->name) != 0))
       l = l->next;
-    if (l != NULL)
+    if (l != NULL){
+      if(isSameScope) {
+        pce("Semantic error at line %d: '%s' was already declared as a %s\n", lineno, name, getExpTypeString(l->expType));
+      }
       return l->memloc;
+    }
     if (isSameScope)
     {
       break;
@@ -209,13 +214,27 @@ int st_lookup(char *scope, char *name, int isSameScope)
     s = s->parent;
   }
   if(!isSameScope){
-    pc("ERROR: Variable %s not declared on scope %s or parents\n", name, scope);
+    pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno, name);
   }
   return -1;
 }
 
+void checkReturn(char *scope, int isNull) {
+  int scopeHash = hash(scope);
+  ScopeBucketList s = hashTable[scopeHash];
+  while ((s != NULL) && (strcmp(scope, s->scopeName) != 0))
+    s = s->next;
+  
+  if(s->returnType == Void && !isNull) {
+    pce("Semantic error at line %d: Function '%s' must not return a value\n", lineno, scope);
+  } else if(s->returnType != Void && isNull) {
+    pce("Semantic error at line %d: Function '%s' must return a value\n", lineno, scope);
+  }
+
+}
+
 void insertInputOutput() {
-  ScopeBucketList s = st_scope_insert(GLOBAL_SCOPE, PROTECTED_SCOPE);
+  ScopeBucketList s = st_scope_insert(GLOBAL_SCOPE, PROTECTED_SCOPE, 0);
   int inputHash = hash("input");
   int outputHash = hash("output");
   BucketList input = s->hashTable[inputHash];

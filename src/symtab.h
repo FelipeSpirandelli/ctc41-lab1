@@ -29,7 +29,7 @@ void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, 
  * Procedure st_scope_insert inserts scope
  * into the scope table
  */
-ScopeBucketList st_scope_insert(char *name, char *parentScope);
+ScopeBucketList st_scope_insert(char *name, char *parentScope, ExpType returnType);
 
 /*
  * Procedure st_symbol_insert inserts symbol
@@ -44,6 +44,8 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
  * location of a variable or -1 if not found
  */
 int st_lookup(char *scope, char *name, int isSameScope);
+
+void checkReturn(char *scope, int isNull);
 
 /* Procedure printSymTab prints a formatted
  * list of the symbol table contents
