@@ -318,22 +318,9 @@ retorno_decl : RETURN SEMI
                   $$->child[0] = $2;
                 }
             ;
-/*expressao   : var ASSIGN expressao
-                {
-                  $$ = newStmtNode(AssignK);
-                  $$->child[0] = $1;
-                  $$->child[0]->isFromAssign = 1;
-                  $$->child[1] = $3;
-                }
-            | simples_expressao
-                {
-                  $$ = $1;
-                }
-            ;
-*/
 expressao   : ID ASSIGN expressao
                 {
-                  $$ = newStmtNode(AssignK);
+                             $$ = newStmtNode(AssignK);
                   $$->attr.name = $1;
                   $$->child[1] = $3;
                   $$->arrayField = 0;

@@ -27,10 +27,15 @@ TreeNode * newExpNode(ExpKind);
  * node for syntax tree construction
  */
 TreeNode * newDeclNode(DeclKind kind);
+char* getDeclKindString(DeclKind kind);
+
+char* getExpTypeString(ExpType type);
 /* Function copyString allocates and makes a new
  * copy of an existing string
  */
 char * copyString( char * );
+char * concatStrings(char *s1, char *s2);
+char *getStackName(char* lastScopeName, char *constName, int level);
 char *getReturnTypeString(ExpType);
 /* procedure printTree prints a syntax tree to the 
  * listing file using indentation to indicate subtrees

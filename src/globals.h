@@ -89,6 +89,8 @@ typedef enum
 } ExpType;
 
 #define MAXCHILDREN 3
+#define GLOBAL_SCOPE "global"
+#define PROTECTED_SCOPE "PROTECTED"
 
 typedef struct treeNode
 {
