@@ -193,9 +193,7 @@ static void genDecl(TreeNode * tree) {
             // cGen().....
          }
       }
-      
       break;
-   
    default:
       break;
    }
