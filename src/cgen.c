@@ -171,28 +171,31 @@ static void genDecl(TreeNode * tree) {
    switch (tree->kind.decl)
    {
    case FunK:
+      // TODO: use child[0] to build the call frame
+      if (TraceCode) emitComment("-> FunK") ;
+      
       if (isFirstFunction) {
          if (!strcmp(tree->attr.name, "main")) { // main is first function
             // gen main
-            // cGen(); ......
+            cGen(tree->child[1]);
          } else {    // regular function is first
             savedMainJumpLoc = emitSkip(1);
             isFirstFunction = 0;
-            // gen
-            // cgen() .....
          }
       } else { // not first function
+
          if (!strcmp(tree->attr.name, "main")) { // main acheived, but is not first function
             savedLoc = emitSkip(0);
             emitBackup(savedMainJumpLoc);
-            emitRM_Abs("LDA", PC, savedLoc, "Unconditional jmp to main");
+            emitRM_Abs("LDA", PC, savedLoc, "Unconditional relative jmp to main");
             emitRestore();
-            // gen main
-            // cGen() ......
+
          } else { // regular function
-            // cGen().....
+            // do something if needed
          }
       }
+      // gen code
+      cGen(tree->child[1]);
       break;
    default:
       break;
