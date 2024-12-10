@@ -60,7 +60,8 @@ static void genStmt(TreeNode *tree)
       /* generate code for test expression */
       cGen(p1);
       savedLoc1 = emitSkip(1);
-      emitComment("if: jump to else belongs here");
+      emitComment("if: jump to else belongs here"); // IF NO ELSE, JUMP TO END INSTEAD
+
       /* recurse on then part */
       cGen(p2);
       savedLoc2 = emitSkip(1);
@@ -81,16 +82,21 @@ static void genStmt(TreeNode *tree)
 
    case WhileK:
       if (TraceCode)
-         emitComment("-> repeat");
+         emitComment("-> while");
       p1 = tree->child[0];
       p2 = tree->child[1];
       savedLoc1 = emitSkip(0);
-      emitComment("repeat: jump after body comes back here");
-      /* generate code for body */
-      cGen(p1);
+      emitComment("while: jump after body comes back here");
       /* generate code for test */
+      cGen(p1);
+      savedLoc2 = emitSkip(1); // Code to jump outside of loop goes here
+      /* generate code for body */
       cGen(p2);
-      emitRM_Abs("JEQ", ac, savedLoc1, "repeat: jmp back to body");
+      emitRM_Abs("JEQ", ac, savedLoc1, "while: jmp back to body");
+      currentLoc = emitSkip(0);
+      emitBackup(savedLoc2);
+      emitRM_Abs("JEQ",ac,currentLoc,"while: jump to end of loop");
+      emitRestore();
       if (TraceCode)
          emitComment("<- repeat");
       break; /* repeat */
@@ -155,11 +161,11 @@ static void genExp(TreeNode *tree)
 
    case ConstK:
       if (TraceCode)
-         emitComment("-> Const");
+         //emitComment("-> Const");
       /* gen code to load integer constant using LDC */
       emitRM("LDC", ac, tree->attr.val, 0, "load const");
       if (TraceCode)
-         emitComment("<- Const");
+         //emitComment("<- Const");
       break; /* ConstK */
 
    case IdK:

@@ -1,6 +1,11 @@
 int x;
 int y;
 
+void func(void) {
+    int w;
+    w = 0;
+}
+
 void main(void) {
     int x;
     int y;
@@ -8,7 +13,7 @@ void main(void) {
 
     x = 2;
     z = 3;
-    if (x < z) {
-        x = z;
+    while (x < z) {
+        x = x + 1;
     }
 }
