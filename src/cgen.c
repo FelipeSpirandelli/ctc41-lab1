@@ -80,17 +80,32 @@ static void genStmt( TreeNode * tree)
          if (TraceCode)  emitComment("<- assign") ;
          break; /* assign_k */
 
+      // TODO: im not sure we are using ReadK nodes
       case ReadK:
          emitRO("IN",ac,0,0,"read integer value");
          //loc = st_lookup(tree->attr.name);
          emitRM("ST",ac,loc,gp,"read: store value");
          break;
+
+      // TODO: im not sure we are using WriteK nodes
       case WriteK:
          /* generate code for expression to write */
          cGen(tree->child[0]);
          /* now output it */
          emitRO("OUT",ac,0,0,"write ac");
          break;
+
+      // TODO: Execute the function epilogue
+      case ReturnK:
+         if (tree->child[0] != NULL){
+            // If has an expression, hopefully the result will be in ac
+            cGen(tree->child[0]);
+         }
+         // Execute epilogue
+         break;
+         
+      case BlockK: 
+         // TODO: do something with scope
       default:
          break;
     }
@@ -173,7 +188,7 @@ static void genDecl(TreeNode * tree) {
    case FunK:
       // TODO: use child[0] to build the call frame
       if (TraceCode) emitComment("-> FunK") ;
-      
+
       if (isFirstFunction) {
          if (!strcmp(tree->attr.name, "main")) { // main is first function
             // gen main
