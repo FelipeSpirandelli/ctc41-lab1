@@ -103,7 +103,7 @@ static void genStmt( TreeNode * tree)
          }
          // Execute epilogue
          break;
-         
+
       case BlockK: 
          // TODO: do something with scope
       default:
@@ -177,6 +177,18 @@ static void genExp( TreeNode * tree)
          if (TraceCode)  emitComment("<- Op") ;
          break; /* OpK */
 
+   case ArrayIdK:
+      if (TraceCode) emitComment("-> ArrayIdK") ;
+      // get the result of what is inside
+      cGen(tree->child[0]); 
+      // TODO
+      // return either the address or the value. Depends on its parents.
+      // Example: if its parent is a Activation node, return the address. If it is in the right side of an assign expression, return the value in that address.
+      // Maybe add another parameter in the recursive function
+      break;
+   case ActvK:
+      // TODO: function prologue
+      break;
     default:
       break;
   }
