@@ -14,9 +14,6 @@
 #include "symtab.h"
 // #include "globals.h"
 
-/* SIZE is the size of the hash table */
-#define SIZE 211
-
 /* SHIFT is the power of two used as multiplier
    in hash function  */
 #define SHIFT 4
@@ -64,14 +61,6 @@ typedef struct BucketListRec
  * for the symbols in the scope, and a
  * pointer to the next scope
  */
-typedef struct ScopeBucketListRec
-{
-  char *scopeName;
-  ExpType returnType;
-  BucketList hashTable[SIZE];
-  struct ScopeBucketListRec *next;
-  struct ScopeBucketListRec *parent;
-} *ScopeBucketList;
 
 /* the hash table */
 static ScopeBucketList hashTable[SIZE];
@@ -223,6 +212,42 @@ int st_lookup(char *scope, char *name, int isSameScope, DeclKind idType)
     pce("Semantic error at line %d: '%s' was not declared in this scope\n", lineno - 1, name);
   }
   return -1;
+}
+
+int st_lookup_memloc(char *scope, char *name)
+{
+  int nameHash = hash(name);
+  int scopeHash = hash(scope);
+  ScopeBucketList s = hashTable[scopeHash];
+
+  while (s != NULL)
+  {
+    // pc("Looking for %s in scope %s\n", name, s->scopeName);
+    BucketList l = s->hashTable[nameHash];
+    while ((l != NULL) && (strcmp(name, l->name) != 0))
+      l = l->next;
+    if (l != NULL){
+      return l->memloc;
+    }
+    // if(isSameScope) {
+    //   break;
+    // }
+    s = s->parent;
+  }
+  return -1;
+}
+
+ScopeBucketList st_scope_lookup(char *scopeName) {
+  int scopeHash = hash(scopeName);
+  ScopeBucketList s = hashTable[scopeHash];
+  while ((s != NULL) && (strcmp(scopeName, s->scopeName) != 0))
+    s = s->next;
+  return s;
+}
+
+int st_set_scope_size(char *scopeName, int value) {
+  ScopeBucketList s = st_scope_lookup(scopeName);
+  s->sizeOfVariables = value;
 }
 
 void checkReturn(char *scope, int isNull) {

@@ -1,0 +1,14 @@
+int x;
+int y;
+
+void main(void) {
+    int x;
+    int y;
+    int z;
+
+    x = 2;
+    z = 3;
+    if (x < z) {
+        x = z;
+    }
+}

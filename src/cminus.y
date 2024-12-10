@@ -327,7 +327,7 @@ retorno_decl : RETURN SEMI
             ;
 expressao   : ID ASSIGN expressao
                 {
-                             $$ = newStmtNode(AssignK);
+                  $$ = newStmtNode(AssignK);
                   $$->attr.name = $1;
                   $$->child[1] = $3;
                   $$->arrayField = 0;

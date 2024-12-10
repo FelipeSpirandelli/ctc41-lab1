@@ -15,7 +15,7 @@
 /* set NO_CODE to TRUE to get a compiler that does not
  * generate code
  */
-#define NO_CODE TRUE
+#define NO_CODE FALSE
 
 
 
@@ -44,7 +44,7 @@ int EchoSource = TRUE;
 int TraceScan = TRUE;
 int TraceParse = TRUE;
 int TraceAnalyze = TRUE;
-int TraceCode = FALSE;
+int TraceCode = TRUE;
 
 int Error = FALSE;
 
@@ -111,6 +111,7 @@ int main(int argc, char *argv[])
 #if !NO_CODE
   if (!Error)
   {
+    doneTABstartGEN();
     char *codefile;
     int fnlen = strcspn(pgm, ".");
     codefile = (char *)calloc(fnlen + 4, sizeof(char));
@@ -122,7 +123,7 @@ int main(int argc, char *argv[])
       printf("Unable to open %s\n", codefile);
       exit(1);
     }
-    codeGen(syntaxTree, codefile);
+    codeGen(syntaxTree/*, codefile*/);
     fclose(code);
   }
 #endif

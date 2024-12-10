@@ -13,7 +13,19 @@
 #include "globals.h"
 #include "util.h"
 
+/* SIZE is the size of the hash table */
+#define SIZE 211
+
 typedef struct BucketListRec *BucketList;
+typedef struct ScopeBucketListRec
+{
+  char *scopeName;
+  int sizeOfVariables;
+  ExpType returnType;
+  BucketList hashTable[SIZE];
+  struct ScopeBucketListRec *next;
+  struct ScopeBucketListRec *parent;
+} *ScopeBucketList;
 typedef struct ScopeBucketListRec *ScopeBucketList;
 
 // I need to insert: lookup on scope and insert on scope
@@ -46,6 +58,8 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
 int st_lookup(char *scope, char *name, int isSameScope, DeclKind idType);
 
 void checkReturn(char *scope, int isNull);
+int st_set_scope_size(char *scopeName, int value);
+ScopeBucketList st_scope_lookup(char *scopeName);
 ScopeBucketList findHashOfGlobal();
 
 /* Procedure printSymTab prints a formatted
