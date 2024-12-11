@@ -18,6 +18,7 @@
 typedef struct FunctionNameToStartAddress {
    char* funcName;
    int startAddr;
+   int sizeOfVars;
 } FunctionNameToStartAddress;
 
 /* tmpOffset is the memory offset for temps
@@ -30,6 +31,16 @@ static int isFirstFunction = 1;  // flag to help place the jump to main in the c
 static int numFunctions = 0;
 FunctionNameToStartAddress funcMap[MAX_FUNCTIONS];
 
+int getSizeOfVarsByName(char* name) {
+   for (int i = 0; i < numFunctions; i++) {
+      if (!strcmp(funcMap[i].funcName, name)) {
+         // achou
+         return funcMap[i].sizeOfVars;
+      }
+   }
+   pc("Could not find registered function with name %s\n", name);
+   return -1;
+}
 // FOR TESTING
 #define INITIAL_SP 100
 #define FP_LOCALS_OFFSET -2
@@ -48,7 +59,8 @@ static void genMainPrologue(TreeNode *tree) {
    // decrement sp
    emitRM("LDA", sp, -1, sp, "Decrementing SP");
    //A main não tem argumentos. Pular para variáveis locais
-   int len = st_scope_lookup("main")->sizeOfVariables;
+   //int len = st_scope_lookup("main")->sizeOfVariables;
+   int len = getSizeOfVarsByName("main");
    emitRM("LDA", sp, -len, sp, "Decrementing SP");
 }
 static void genPrologue(TreeNode * tree, char* funcName) {
@@ -62,7 +74,8 @@ static void genPrologue(TreeNode * tree, char* funcName) {
    emitRM("ST", fp, 0, sp, "Prologue: Storing FP on stack");
    emitRM("LDA", sp, -1, sp, "Prologue: Decrementing SP");
    emitRM("LDA", sp, -1, sp, "Prologue: Decrementing SP");   
-   int len = st_scope_lookup(funcName)->sizeOfVariables;
+   //int len = st_scope_lookup(funcName)->sizeOfVariables;
+   int len = getSizeOfVarsByName(funcName);
    if (st_scope_lookup(funcName) == NULL) {
       emitComment("WARN: NULL POINTER TO SCOPE");
    }
@@ -90,17 +103,20 @@ static void genPrologue(TreeNode * tree, char* funcName) {
       } else {
          genExp(currentArg, 0);
       }
-      emitRM("ST",ac, -(argCount++), sp, "Storing arg value after new stack pointer");
+      //emitRM("ST",ac, -(argCount++), sp, "Storing arg value after new stack pointer");
+      // INSTEAD, DECREMENT SP BY 1 and put the value there, but keep track of argCount
+      emitRM("ST", ac, 0, sp, "Storing arg value after new stack pointer");
+      emitRM("LDA", sp, -1, sp, "Decrementing sp");
+      argCount++;
       currentArg = currentArg->sibling;
    }
    // Args stored. Now we can abandon the previous frame
-   emitRM("LDA", fp, 2, sp, "Prologue: FP now points to current frame");
+   emitRM("LDA", fp, 2 + argCount, sp, "Prologue: FP now points to current frame");
    // populate return address. we add 4 because of the 4 other instructions below
    returnPC = emitSkip(0) + 4;
    emitRM("LDC",ac, returnPC, ac, "Storing return address on ac");
    emitRM("ST", ac, -1, fp, "Store return address on stack" ); /* RM     mem(d+reg(s)) = reg(r) */
-   emitRM("LDA", sp, -len, sp, "Prologue: Allocating memory for variables and arguments");
-   pc("* BTW THE FUNCTION NAME IS %s. Len is %d\n", funcName, len);
+   emitRM("LDA", sp, -len + argCount, sp, "Prologue: Allocating memory for variables and arguments");
    // NOW JUMP TO THE FUNCTION THAT WAS JUST CALLED
    for (int i = 0; i < numFunctions; i++) {
       if (!strcmp(funcMap[i].funcName, tree->attr.name)) { 
@@ -119,8 +135,8 @@ static void genEpilogue(TreeNode * tree) {
    ScopeMemLock loc;
    if (TraceCode) emitComment("-> Function Epilogue");
    char* scopeName = contextStack[contextLevel]->scopeName; // should be my function right now
-   int len = st_scope_lookup(scopeName)->sizeOfVariables;
-   
+   //int len = st_scope_lookup(scopeName)->sizeOfVariables;
+   int len = getSizeOfVarsByName(scopeName);
    // Start epilogue
    emitRM("LDA", sp, len, sp, "Removing local variables");
    emitRM("LD",fp, 2, sp, "Restoring previous FP"); //reg(fp) = mem[reg(sp)+2]
@@ -294,7 +310,6 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
       if (TraceCode) emitComment("-> Id");
       scopeName = contextStack[contextLevel]->scopeName;
       loc = st_lookup_memloc(scopeName, tree->attr.name);
-
       //pc("*current scope name: %s\n",scopeName);
       //pc("*right variable scope: %s\n",loc.scopeName);
       if (!useAddress) {
@@ -463,7 +478,10 @@ static void genDecl(TreeNode *tree)
          emitComment("-> FunK");
       numFunctions++;
       funcMap[numFunctions-1].funcName = tree->attr.name;
-      funcMap[numFunctions-1].startAddr = emitSkip(0); 
+      // first function has to skip unconditional jump to main
+      if (isFirstFunction) funcMap[numFunctions-1].startAddr = emitSkip(0) + 1; 
+      else funcMap[numFunctions-1].startAddr = emitSkip(0); 
+      funcMap[numFunctions-1].sizeOfVars = st_scope_lookup(tree->attr.name)->sizeOfVariables;
       if (isFirstFunction)
       {
          if (!strcmp(tree->attr.name, "main"))
@@ -555,7 +573,9 @@ void codeGen(TreeNode *syntaxTree)
    emitComment("End of standard prelude.");
    /* generate code for TINY program */
    cGen(syntaxTree);
+   //pc("Now f sizeOfVars is %d\n", st_scope_lookup("f")->sizeOfVariables);
    /* finish */
    emitComment("End of execution.");
    emitRO("HALT", 0, 0, 0, "");
+
 }
