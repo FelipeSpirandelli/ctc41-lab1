@@ -13,6 +13,13 @@
 #include "cgen.h"
 #include "analyze.h"
 
+#define MAX_FUNCTIONS 20
+
+typedef struct FunctionNameToStartAddress {
+   char* funcName;
+   int startAddr;
+} FunctionNameToStartAddress;
+
 /* tmpOffset is the memory offset for temps
    It is decremented each time a temp is
    stored, and incremeted when loaded again
@@ -20,7 +27,8 @@
 static int tmpOffset = 0;
 static int savedMainJumpLoc = 0; // because main should run after global declaratins/assignments, but before the first function
 static int isFirstFunction = 1;  // flag to help place the jump to main in the correct place
-
+static int numFunctions = 0;
+FunctionNameToStartAddress funcMap[MAX_FUNCTIONS];
 
 // FOR TESTING
 #define INITIAL_SP 100
@@ -43,6 +51,7 @@ static void genMainPrologue(TreeNode *tree) {
    emitRM("LDA", sp, -len, sp, "Decrementing SP");
 }
 static void genPrologue(TreeNode * tree, char* funcName) {
+   int jmpAddr = 0;
    int argCount = 0;
    int returnPC = 0;
    char* scopeName;
@@ -50,15 +59,14 @@ static void genPrologue(TreeNode * tree, char* funcName) {
    TreeNode * currentArg;
    if (TraceCode) emitComment("-> Function Prologue");
    emitRM("ST", fp, 0, sp, "Prologue: Storing FP on stack");
-   // emitRM("LDA", fp, 0, sp, "Prologue: FP now points to current frame"); TODO: ADD THIS AFTER POPULATING THE ARGS
    emitRM("LDA", sp, -1, sp, "Prologue: Decrementing SP");
-   // emitRM("ST", returnPC, 0, sp, "Prologue: Storing return address on stack"); TODO: ONLY RESTORE RETADDR AFTER KNOWING IT
    emitRM("LDA", sp, -1, sp, "Prologue: Decrementing SP");   
    int len = st_scope_lookup(funcName)->sizeOfVariables;
-   // emitRM("LDA", sp, -len, sp, "Prologue: Allocating memory for variables and arguments"); TODO: only add this after populating args
+   if (st_scope_lookup(funcName) == NULL) {
+      emitComment("WARN: NULL POINTER TO SCOPE");
+   }
    // Now we populate the args. they are siblings, so we dont call cGen
    currentArg = tree->child[0];
-
    // calculate them and store in the correct position on the new frame.
    while (currentArg != NULL) {
       // they should be expression nodes
@@ -68,6 +76,7 @@ static void genPrologue(TreeNode * tree, char* funcName) {
       }
       if (currentArg->kind.exp == IdK) {
          // check if is an array passed by reference
+         emitComment("ID kind node found");
          scopeName = contextStack[contextLevel]->scopeName;
          loc = st_lookup_memloc(scopeName, tree->attr.name);
          if (loc.idType == ArrayK) {
@@ -85,17 +94,45 @@ static void genPrologue(TreeNode * tree, char* funcName) {
    }
    // Args stored. Now we can abandon the previous frame
    emitRM("LDA", fp, 2, sp, "Prologue: FP now points to current frame");
-   // populate return address. we add 1 because of the 2 other instructions below
-   returnPC = emitSkip(0) + 3;
+   // populate return address. we add 4 because of the 4 other instructions below
+   pc("NUM FUNCTION IS %d\n", numFunctions);
+   returnPC = emitSkip(0) + 4;
    emitRM("LDC",ac, returnPC, ac, "Storing return address on ac");
    emitRM("ST", ac, -1, fp, "Store return address on stack" ); /* RM     mem(d+reg(s)) = reg(r) */
-   emitRM("LDA", sp, -len, sp, "Prologue: Allocating memory for variables and arguments (arguments already populated)");
+   emitRM("LDA", sp, -len, sp, "Prologue: Allocating memory for variables and arguments");
    // NOW JUMP TO THE FUNCTION THAT WAS JUST CALLED
-   // REMEMBER TO INCREMENT RETURNPC BY 1
+   for (int i = 0; i < numFunctions; i++) {
+      if (!strcmp(funcMap[i].funcName, tree->attr.name)) { 
+         // FOUND IT
+         jmpAddr = funcMap[i].startAddr;
+         break;
+      }
+   }
+   emitRM_Abs("LDA", PC, jmpAddr, "JUMP TO THE FUNCTIOONNNN");
 
    if (TraceCode) emitComment("<- Function Prologue");  
 }
 
+// We use epilogue on 2 locations. One is on return nodes. Other is on end of function
+static void genEpilogue(TreeNode * tree) {
+   ScopeMemLock loc;
+   if (TraceCode) emitComment("-> Function Epilogue");
+   char* scopeName = contextStack[contextLevel]->scopeName; // should be my function right now
+   int len = st_scope_lookup(scopeName)->sizeOfVariables;
+   
+   // Start epilogue
+   emitRM("LDA", sp, len, sp, "Removing local variables");
+   emitRM("LD",fp, 2, sp, "Restoring previous FP"); //reg(fp) = mem[reg(sp)+2]
+   emitRM("LDA", sp, 2, sp, "Completely destroying the frame");
+   //emitRM_Abs("LDA", PC, currentLoc, "jmp to end");
+   // retPC = mem[reg(sp)-1]
+   emitRM("LD", ac1, -1, sp, "Loading return address in ac1");
+   // here we do an absolute jump
+   // TODO: make it relative
+   emitRM("LDA", PC, 0, ac1, "RETURNINNNG");
+
+   if (TraceCode) emitComment("<- Function Epilogue");
+}
 /* Procedure genStmt generates code at a statement node */
 static void genStmt(TreeNode *tree)
 {
@@ -166,8 +203,7 @@ static void genStmt(TreeNode *tree)
          char* scopeName = contextStack[contextLevel]->scopeName;
          loc = st_lookup_memloc(scopeName, tree->attr.name);
          pc("*current scope name: %s\n",scopeName);
-         pc("*right variable scope: %s\n",loc.scopeName);
-
+         pc("*left variable scope: %s\n",loc.scopeName);
          if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
             emitRM("ST", ac, loc.memloc, gp, "assign: store to global variable");
          } else {
@@ -182,46 +218,47 @@ static void genStmt(TreeNode *tree)
          char* scopeName = contextStack[contextLevel]->scopeName;
          loc = st_lookup_memloc(scopeName, tree->attr.name); // returns beginning of array loc
          pc("*current scope name: %s\n",scopeName);
-         pc("*right array variable scope: %s\n",loc.scopeName);
-
+         pc("*left array variable scope: %s\n",loc.scopeName);
+         //if (loc.isParam == 1) {
+         //   pc("* Now we have a param, gentlemen\n");
+         //} else if (loc.idType == ArrayK) {
+         //   pc("* Not a param, gentleman. Just array\n");
+         //}
          if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
             // right now, ac has the index, but we want it to be loc + idx, base gp
             emitRM("LDA", ac, loc.memloc, ac, "Loading relative global array index address into ac");
             emitRM("LDA", ac, 0, gp, "Loading absolute index address");
             emitRM("ST", ac1, 0, ac, "assign: store to global array"); /* RM     mem(d+reg(s)) = reg(r) */
          } else {
-            emitRM("LDC", ac2, -loc.memloc, ac2, "loading array memloc on ac2");
-            emitRO("SUB",ac,ac2,ac, "loading array index location on ac (relative to local_variables)");
-            emitRO("ADD",ac,fp,ac, "adding fp to get index location on frame (except for FP_LOCALS_OFFSET)");
-           //  emitRO("ADD", ac, ac, gp, "Loading absolute index address (except for FP_LOCALS_OFFSET)"); No need to add gp here
-            emitRM("ST", ac1, FP_LOCALS_OFFSET, ac, "adding FP_LOCALS_OFFSET to get abslute index location");
+            // IF ARRAY AND PARAM, WE MUST FIRST GET ITS TRUE POSITION mem[reg(fp)+FP_LOCALS_OFFSET-loc] has the address
+            // SO WE DO  mem[mem[reg(fp) + FP_LOCALS_OFFSET-loc] + index] = ac1
+            // TODO: IT COULD BE + index or - index. Depends if the passed array was local or global
+            if (loc.isParam) {
+               // ac2 = fp + LOCALS_OFFSET - loc
+               emitRM("LDA", ac2, FP_LOCALS_OFFSET - loc.memloc, fp, "loading param address on ac2");
+               emitRM("LD", ac2,0,ac2, "ac2 = mem[ac2]"); //ac2 now has the true array base address
+               emitRO("ADD", ac, ac, ac2, "ac = ac2 + ac (base_Addr + index)"); // TODO: its actually a sub if array is not global
+               //emitRM("LDC", ac2, -loc.memloc, ac2, "loading array memloc on ac2");
+               emitRM("ST",ac1,0,ac, "Storing result on array correct place");
+            } else {
+               emitRM("LDC", ac2, -loc.memloc, ac2, "loading array memloc on ac2");
+               emitRO("SUB",ac,ac2,ac, "loading array index location on ac (relative to local_variables)");
+               emitRO("ADD",ac,fp,ac, "adding fp to get index location on frame (except for FP_LOCALS_OFFSET)");
+               emitRM("ST", ac1, FP_LOCALS_OFFSET, ac, "adding FP_LOCALS_OFFSET to get abslute index location");
+            }
          }
       }
       if (TraceCode)
          emitComment("<- assign");
       break; /* assign_k */
-
-   // TODO: im not sure we are using ReadK nodes
-   case ReadK:
-      emitRO("IN", ac, 0, 0, "read integer value");
-      // loc = st_lookup(tree->attr.name);
-      emitRM("ST", ac, loc.memloc, gp, "read: store value");
-      break;
-
-   // TODO: im not sure we are using WriteK nodes
-   case WriteK:
-      /* generate code for expression to write */
-      cGen(tree->child[0]);
-      /* now output it */
-      emitRO("OUT", ac, 0, 0, "write ac");
-      break;
-
-   // TODO: Execute the function epilogue
+      
    case ReturnK:
       if (tree->child[0] != NULL)
       {
          // If has an expression, hopefully the result will be in ac
          cGen(tree->child[0]);
+         // Now we add code to destroy the current frame. The results will be in ac.
+         genEpilogue(tree);
       }
       // Execute epilogue
       break;
@@ -371,9 +408,19 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
          /* RM     reg(r) = mem(d+reg(s)) */
          emitRM("LD", ac, loc.memloc, ac, "ac has the value");
       } else {
-         // local array. we want reg(ac) = mem[fp + LOCALS_FP_OFFSET - loc - index]. index is on ac
-         emitRO("SUB", ac, fp, ac, "ac = fp - index"); // ac = fp - index
-         emitRM("LD", ac, -loc.memloc + FP_LOCALS_OFFSET, ac, "ac = mem[fp + FP_LOCALS_OFFSET - loc - index]");
+         // CAREFUL: It could be a param, so we need to access the true location before retrieving its value
+         if (loc.isParam) {
+            emitRM("LD", ac1, FP_LOCALS_OFFSET - loc.memloc ,fp, "ac1 = mem[reg(fp) + FP_LOCALS_OFFSET - loc]");
+            // now ac1 has the base address of array
+            // TODO: plus or minus index. depends if the array is global or local in some other function
+            // ac = mem[ac1 + index]
+            emitRO("ADD", ac, ac1, ac, "ac = (base_addr + index)");
+            emitRM("LD", ac, 0, ac, "ac = mem[ac]");
+         } else {
+            // local array. we want reg(ac) = mem[fp + LOCALS_FP_OFFSET - loc - index]. index is on ac
+            emitRO("SUB", ac, fp, ac, "ac = fp - index"); // ac = fp - index
+            emitRM("LD", ac, -loc.memloc + FP_LOCALS_OFFSET, ac, "ac = mem[fp + FP_LOCALS_OFFSET - loc - index]");
+         }
       }
 
       if (TraceCode) emitComment("<- Array Id");
@@ -382,8 +429,21 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
       // TODO: function prologue
       if (TraceCode)
          emitComment("-> Function Call");
+
          char* funcName = tree->attr.name;
-         genPrologue(tree, funcName);
+         if (!strcmp(funcName, "input")) {
+            emitRO("IN", ac, 0, 0, "read integer value");
+            // loc = st_lookup(tree->attr.name);
+            // emitRM("ST", ac, loc.memloc, gp, "read: store value");
+         } else if (!strcmp(funcName, "output")) {
+            /* generate code for expression to write */
+            cGen(tree->child[0]);
+            /* now output it */
+            emitRO("OUT", ac, 0, 0, "write ac");
+         } else {
+            genPrologue(tree, funcName);
+         }
+
       if (TraceCode)
          emitComment("<- Function Call");
       break;
@@ -400,7 +460,9 @@ static void genDecl(TreeNode *tree)
       // TODO: use child[0] to build the call frame
       if (TraceCode)
          emitComment("-> FunK");
-
+      numFunctions++;
+      funcMap[numFunctions-1].funcName = tree->attr.name;
+      funcMap[numFunctions-1].startAddr = emitSkip(0); 
       if (isFirstFunction)
       {
          if (!strcmp(tree->attr.name, "main"))
@@ -434,6 +496,8 @@ static void genDecl(TreeNode *tree)
       }
       // gen code
       cGen(tree->child[1]);
+      // write epilogue to end. Main doesn't need it
+      if (strcmp(tree->attr.name, "main")) genEpilogue(tree);
        if (TraceCode)
          emitComment("<- FunK");
       break;
@@ -485,7 +549,6 @@ void codeGen(TreeNode *syntaxTree)
    emitComment("Standard prelude:");
    emitRM("LD", mp, 0, ac, "load maxaddress from location 0");
    emitRM("ST", ac, 0, ac, "clear location 0");
-   emitRM("LDC", sp, INITIAL_SP, sp, "Initial SP value"); // TODO: Remove this later because it will be in MP
    emitComment("End of standard prelude.");
    /* generate code for TINY program */
    cGen(syntaxTree);

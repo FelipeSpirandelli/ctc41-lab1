@@ -156,7 +156,7 @@ static void insertNode(TreeNode *t)
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 0, t->kind.stmt) != -1)
       {
         // pc("Inserting %s in %s line %d\n", t->attr.name, contextStack[contextLevel]->scopeName, t->lineno);
-        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 0, t->kind.stmt, t->type, 0);
+        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 0, t->kind.stmt, t->type, 0,0);
       }
       break;
     case ReturnK:
@@ -174,7 +174,7 @@ static void insertNode(TreeNode *t)
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 1, t->kind.decl) == -1)
       {
         // pc("Inserting var %s in %s\n", t->attr.name, contextStack[contextLevel]->scopeName);
-        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, memloc, t->kind.stmt, t->type, 1);
+        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, memloc, t->kind.stmt, t->type, 1,0);
       }
       if (t->kind.decl == VarK)
       {
@@ -191,7 +191,7 @@ static void insertNode(TreeNode *t)
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 1, t->kind.decl) == -1)
       {
         // pc("Inserting var %s in %s\n", t->attr.name, contextStack[contextLevel]->scopeName);
-        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, memloc, t->arrayField ? ArrayK : VarK, t->type, 1);
+        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, memloc, t->arrayField ? ArrayK : VarK, t->type, 1,1);
       }
       memloc++;
       sizeOfVariables++;
@@ -200,7 +200,7 @@ static void insertNode(TreeNode *t)
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 1, t->kind.decl) == -1)
       {
         // pc("Inserting fun %s in %s in line %d\n", t->attr.name, contextStack[contextLevel]->scopeName, t->lineno);
-        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 1, t->kind.stmt, t->type, 1);
+        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 1, t->kind.stmt, t->type, 1,0);
       }
       memloc = 0;
       sizeOfVariables = 0;
@@ -220,7 +220,7 @@ static void insertNode(TreeNode *t)
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 0, t->kind.exp) != -1)
       {
         // pc("Inserting %s in %s line %d\n", t->attr.name, contextStack[contextLevel]->scopeName, t->lineno);
-        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 1, t->kind.stmt, t->type, 0);
+        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 1, t->kind.stmt, t->type, 0,0);
       }
       break;
     default:

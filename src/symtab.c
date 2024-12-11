@@ -50,6 +50,7 @@ typedef struct BucketListRec
 {
   char *name;
   DeclKind idType;
+  int isParam;
   ExpType expType;
   LineList lines;
   int memloc; /* memory location for variable */
@@ -70,11 +71,11 @@ static ScopeBucketList hashTable[SIZE];
  * loc = memory location is inserted only the
  * first time, otherwise ignored
  */
-void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
+void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope, int isParam)
 {
   // pc("Inserting %s in %s\n", name, scope);
   ScopeBucketList s = st_scope_insert(scope, parentScope, 0);
-  st_symbol_insert(s, name, lineno, loc, idType, expType, isSameScope);
+  st_symbol_insert(s, name, lineno, loc, idType, expType, isSameScope, isParam);
 } /* st_insert */
 
 ScopeBucketList st_scope_insert(char *scope, char *parentScope, ExpType returnType)
@@ -111,7 +112,7 @@ ScopeBucketList st_scope_insert(char *scope, char *parentScope, ExpType returnTy
   return s;
 }
 
-BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope)
+BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope, int isParam)
 {
   int nameHash = hash(name);
   BucketList l = NULL;
@@ -142,6 +143,7 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
     l->lines->lineno = lineno;
     l->memloc = loc;
     l->idType = idType;
+    l->isParam = isParam;
     l->expType = expType;
     l->lines->next = NULL;
     l->next = curScope->hashTable[nameHash];
@@ -230,6 +232,7 @@ ScopeMemLock st_lookup_memloc(char *scope, char *name)
       sc.memloc = l->memloc;
       sc.scopeName = s->scopeName;
       sc.idType = l->idType;
+      sc.isParam = l->isParam;
       return sc;
     }
     // if(isSameScope) {

@@ -32,6 +32,7 @@ typedef struct ScopeMemLock {
   int memloc;
   char* scopeName;
   DeclKind idType;
+  int isParam;
 } ScopeMemLock;
 // I need to insert: lookup on scope and insert on scope
 // I need to use: lookup on all parent scopes and insert line on first found
@@ -40,7 +41,7 @@ typedef struct ScopeMemLock {
  * into the scope table and symbol
  * on the symbol table of the scope
  */
-void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope);
+void st_insert(char *scope, char *parentScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope, int isParam);
 
 /*
  * Procedure st_scope_insert inserts scope
@@ -55,7 +56,7 @@ ScopeBucketList st_scope_insert(char *name, char *parentScope, ExpType returnTyp
  * loc = memory location is inserted only the
  * first time, otherwise ignored
  */
-BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope);
+BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, int loc, DeclKind idType, ExpType expType, int isSameScope, int isParam);
 
 /* Function st_lookup returns the memory
  * location of a variable or -1 if not found
