@@ -25,6 +25,7 @@ static int isFirstFunction = 1;  // flag to help place the jump to main in the c
 // FOR TESTING
 #define INITIAL_SP 100
 #define FP_LOCALS_OFFSET -2
+#define PROLOGUE_CODE_LEN 5
 /* prototype for internal recursive code generator */
 static void cGen(TreeNode *tree);
 
@@ -41,13 +42,22 @@ static void genMainPrologue(TreeNode *tree) {
    int len = st_scope_lookup("main")->sizeOfVariables;
    emitRM("LDA", sp, -len, sp, "Decrementing SP");
 }
+static void genPrologue(TreeNode * tree, int returnPC, char* funcName) {
+   emitRM("ST", fp, 0, sp, "Prologue: Storing FP on stack");
+   emitRM("LDA", fp, 0, sp, "Prologue: FP now points to current frame");
+   emitRM("LDA", sp, -1, sp, "Prologue: Decrementing SP");
+   emitRM("ST", returnPC, 0, sp, "Prologue: Storing return address on stack");
+   emitRM("LDA", sp, -1, sp, "Prologue: Decrementing SP");   
+   int len = st_scope_lookup(funcName)->sizeOfVariables;
+   emitRM("LDA", sp, -len, sp, "Prologue: Allocating memory for variables and arguments");   
+}
 
 /* Procedure genStmt generates code at a statement node */
 static void genStmt(TreeNode *tree)
 {
    TreeNode *p1, *p2, *p3;
    int savedLoc1, savedLoc2, currentLoc;
-   int loc;
+   ScopeMemLock loc;
    switch (tree->kind.stmt)
    {
 
@@ -92,28 +102,56 @@ static void genStmt(TreeNode *tree)
       savedLoc2 = emitSkip(1); // Code to jump outside of loop goes here
       /* generate code for body */
       cGen(p2);
-      emitRM_Abs("JEQ", ac, savedLoc1, "while: jmp back to body");
+      emitRM_Abs("LDA", PC, savedLoc1, "Unconditional relative jmp to loop");
+      // emitRM_Abs("JEQ", ac, savedLoc1, "while: jmp back to body");
       currentLoc = emitSkip(0);
       emitBackup(savedLoc2);
       emitRM_Abs("JEQ",ac,currentLoc,"while: jump to end of loop");
       emitRestore();
       if (TraceCode)
-         emitComment("<- repeat");
+         emitComment("<- while");
       break; /* repeat */
 
    case AssignK:
       if (TraceCode)
          emitComment("-> assign");
       /* generate code for rhs */
-      cGen(tree->child[1]);
-      /* now store value */
-      char* scopeName = contextStack[contextLevel]->scopeName;
-      loc = st_lookup_memloc(scopeName, tree->attr.name);
-      if (!strcmp(scopeName, GLOBAL_SCOPE)) {
-         emitRM("ST", ac, loc, gp, "assign: store to global variable");
-      } else {
-         emitRM("ST", ac, -loc + FP_LOCALS_OFFSET, fp, "assign: store to local variable");
+      if (tree->child[0] == NULL) { // no array on left side
+         cGen(tree->child[1]);
+         /* now store value */
+         char* scopeName = contextStack[contextLevel]->scopeName;
+         loc = st_lookup_memloc(scopeName, tree->attr.name);
+         pc("*current scope name: %s\n",scopeName);
+         pc("*right variable scope: %s\n",loc.scopeName);
 
+         if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
+            emitRM("ST", ac, loc.memloc, gp, "assign: store to global variable");
+         } else {
+            emitRM("ST", ac, -loc.memloc + FP_LOCALS_OFFSET, fp, "assign: store to local variable");
+         }
+      } else { // assign to array
+         cGen(tree->child[1]);
+         // store the result from right side temporarily on ac1
+         emitRM("LDA",ac1,0,ac,"Saving temporary value on ac1");
+         cGen(tree->child[0]); // ac now has the index of the left side array
+
+         char* scopeName = contextStack[contextLevel]->scopeName;
+         loc = st_lookup_memloc(scopeName, tree->attr.name); // returns beginning of array loc
+         pc("*current scope name: %s\n",scopeName);
+         pc("*right array variable scope: %s\n",loc.scopeName);
+
+         if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
+            // right now, ac has the index, but we want it to be loc + idx, base gp
+            emitRM("LDA", ac, loc.memloc, ac, "Loading relative global array index address into ac");
+            emitRM("LDA", ac, 0, gp, "Loading absolute index address");
+            emitRM("ST", ac1, 0, ac, "assign: store to global array"); /* RM     mem(d+reg(s)) = reg(r) */
+         } else {
+            emitRM("LDC", ac2, -loc.memloc, ac2, "loading array memloc on ac2");
+            emitRO("SUB",ac,ac2,ac, "loading array index location on ac (relative to local_variables)");
+            emitRO("ADD",ac,fp,ac, "adding fp to get index location on frame (except for FP_LOCALS_OFFSET)");
+            emitRO("ADD", ac, ac, gp, "Loading absolute index address (except for FP_LOCALS_OFFSET)");
+            emitRM("ST", ac1, FP_LOCALS_OFFSET, ac, "adding FP_LOCALS_OFFSET to get abslute index location");
+         }
       }
       if (TraceCode)
          emitComment("<- assign");
@@ -123,7 +161,7 @@ static void genStmt(TreeNode *tree)
    case ReadK:
       emitRO("IN", ac, 0, 0, "read integer value");
       // loc = st_lookup(tree->attr.name);
-      emitRM("ST", ac, loc, gp, "read: store value");
+      emitRM("ST", ac, loc.memloc, gp, "read: store value");
       break;
 
    // TODO: im not sure we are using WriteK nodes
@@ -154,7 +192,8 @@ static void genStmt(TreeNode *tree)
 /* Procedure genExp generates code at an expression node */
 static void genExp(TreeNode *tree)
 {
-   int loc;
+   char* scopeName;
+   ScopeMemLock loc;
    TreeNode *p1, *p2;
    switch (tree->kind.exp)
    {
@@ -170,14 +209,17 @@ static void genExp(TreeNode *tree)
 
    case IdK:
       if (TraceCode) emitComment("-> Id");
-      char* scopeName = contextStack[contextLevel]->scopeName;
+      scopeName = contextStack[contextLevel]->scopeName;
       loc = st_lookup_memloc(scopeName, tree->attr.name);
-      if (!strcmp(scopeName, GLOBAL_SCOPE)) {
+
+      pc("*current scope name: %s\n",scopeName);
+      pc("*right variable scope: %s\n",loc.scopeName);
+      if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
          // escopo global, offset de gp
-         emitRM("LD", ac, loc, gp, "load id value");
+         emitRM("LD", ac, loc.memloc, gp, "load id value");
       } else {
          // escopo local, offset de fp
-         emitRM("LD", ac, -loc + FP_LOCALS_OFFSET, fp, "load local id value");
+         emitRM("LD", ac, -loc.memloc + FP_LOCALS_OFFSET, fp, "load local id value");
       }
       if (TraceCode)
          emitComment("<- Id");
@@ -237,14 +279,42 @@ static void genExp(TreeNode *tree)
       if (TraceCode)
          emitComment("-> ArrayIdK");
       // get the result of what is inside
-      cGen(tree->child[0]);
       // TODO
       // return either the address or the value. Depends on its parents.
-      // Example: if its parent is a Activation node, return the address. If it is in the right side of an assign expression, return the value in that address.
+      // Example: if its parent is an Activation node, return the address. If it is in the right side of an assign expression, return the value in that address.
       // Maybe add another parameter in the recursive function
+      // For now, I'll only treat it as an expression, so we return the value
+      cGen(tree->child[0]);
+
+      scopeName = contextStack[contextLevel]->scopeName;
+      loc = st_lookup_memloc(scopeName, tree->attr.name);
+      pc("*current scope name: %s\n",scopeName);
+      pc("*right variable scope: %s\n",loc.scopeName);
+      if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
+         // global array. we want mem[gp + loc + index]. at this point ac has index
+         /* RM     reg(r) = mem(d+reg(s)) */
+         emitRO("ADD", ac, ac, gp, "ac = index + gp"); // ac = index + gp 
+         emitRM("LD", ac, loc.memloc, ac, "ac has the value");
+      } else {
+         // local array. we want mem[gp + fp + LOCALS_FP_OFFSET - loc]
+      }
+      if (TraceCode) emitComment("<- Id");
       break;
    case ActvK:
       // TODO: function prologue
+      if (TraceCode)
+         emitComment("-> Function Call");
+      if (tree->child[0] == NULL) { // no args
+         int nextPc = emitSkip(0) + PROLOGUE_CODE_LEN;
+         char* funcName = tree->attr.name;
+         genPrologue(tree, nextPc, funcName);
+      } else {
+      // if has args, we must calculate the expressions and store them temporarily, run the prologue and store them in argument fields of the prologue
+
+      }
+
+      if (TraceCode)
+         emitComment("<- Function Call");
       break;
    default:
       break;

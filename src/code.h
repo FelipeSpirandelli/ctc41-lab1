@@ -31,6 +31,8 @@
 #define fp 2
 
 #define sp 3
+
+#define ac2 4
 /* code emitting utilities */
 
 /* Procedure emitComment prints a comment line 

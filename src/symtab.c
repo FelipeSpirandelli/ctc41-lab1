@@ -214,12 +214,12 @@ int st_lookup(char *scope, char *name, int isSameScope, DeclKind idType)
   return -1;
 }
 
-int st_lookup_memloc(char *scope, char *name)
+ScopeMemLock st_lookup_memloc(char *scope, char *name)
 {
   int nameHash = hash(name);
   int scopeHash = hash(scope);
   ScopeBucketList s = hashTable[scopeHash];
-
+  ScopeMemLock sc;
   while (s != NULL)
   {
     // pc("Looking for %s in scope %s\n", name, s->scopeName);
@@ -227,14 +227,18 @@ int st_lookup_memloc(char *scope, char *name)
     while ((l != NULL) && (strcmp(name, l->name) != 0))
       l = l->next;
     if (l != NULL){
-      return l->memloc;
+      sc.memloc = l->memloc;
+      sc.scopeName = s->scopeName;
+      return sc;
     }
     // if(isSameScope) {
     //   break;
     // }
     s = s->parent;
   }
-  return -1;
+  sc.memloc = -1;
+  sc.scopeName = "ERROR";
+  return sc;
 }
 
 ScopeBucketList st_scope_lookup(char *scopeName) {

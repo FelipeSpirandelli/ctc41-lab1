@@ -28,6 +28,10 @@ typedef struct ScopeBucketListRec
 } *ScopeBucketList;
 typedef struct ScopeBucketListRec *ScopeBucketList;
 
+typedef struct ScopeMemLock {
+  int memloc;
+  char* scopeName;
+} ScopeMemLock;
 // I need to insert: lookup on scope and insert on scope
 // I need to use: lookup on all parent scopes and insert line on first found
 
@@ -56,7 +60,7 @@ BucketList st_symbol_insert(ScopeBucketList curScope, char *name, int lineno, in
  * location of a variable or -1 if not found
  */
 int st_lookup(char *scope, char *name, int isSameScope, DeclKind idType);
-
+ScopeMemLock st_lookup_memloc(char *scope, char *name);
 void checkReturn(char *scope, int isNull);
 int st_set_scope_size(char *scopeName, int value);
 ScopeBucketList st_scope_lookup(char *scopeName);

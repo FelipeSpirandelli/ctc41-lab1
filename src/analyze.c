@@ -191,8 +191,10 @@ static void insertNode(TreeNode *t)
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 1, t->kind.decl) == -1)
       {
         // pc("Inserting var %s in %s\n", t->attr.name, contextStack[contextLevel]->scopeName);
-        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, 1, t->arrayField ? ArrayK : VarK, t->type, 1);
+        st_insert(contextStack[contextLevel]->scopeName, getParentScope(), t->attr.name, t->lineno, memloc, t->arrayField ? ArrayK : VarK, t->type, 1);
       }
+      memloc++;
+      sizeOfVariables++;
       break;
     case FunK:
       if (st_lookup(contextStack[contextLevel]->scopeName, t->attr.name, 1, t->kind.decl) == -1)
