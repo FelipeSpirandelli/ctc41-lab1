@@ -362,6 +362,7 @@ void printSymTab()
               pc("%-8s  ", s->scopeName);
               pc("%-7s  ", getDeclKindString(l->idType));
               pc("%-9s  ", getExpTypeString(l->expType));
+              // pc("%2d  ", s->sizeOfVariables);
               while (t != NULL)
               {
                 pc("%2d ", t->lineno);

@@ -39,8 +39,9 @@ static void cGen(TreeNode *tree);
 
 static void genMainPrologue(TreeNode *tree) {
    // store current fp value in address pointed by sp. doesn't matter since is main
-   //emitRM("ST", fp, 0, sp, "Storing FP on stack");
    // decrement sp
+   emitRM("ST", fp, 0, sp, "Prologue: Storing FP on stack");
+   emitRM("LDA", fp, 0, sp, "Prologue: FP now points to current frame");
    emitRM("LDA", sp, -1, sp, "Decrementing SP");
    // store return address (pc+1). does not matter for main
    //emitRM("ST", PC+1, 0, sp, "Storing return address on stack");
@@ -95,11 +96,11 @@ static void genPrologue(TreeNode * tree, char* funcName) {
    // Args stored. Now we can abandon the previous frame
    emitRM("LDA", fp, 2, sp, "Prologue: FP now points to current frame");
    // populate return address. we add 4 because of the 4 other instructions below
-   pc("NUM FUNCTION IS %d\n", numFunctions);
    returnPC = emitSkip(0) + 4;
    emitRM("LDC",ac, returnPC, ac, "Storing return address on ac");
    emitRM("ST", ac, -1, fp, "Store return address on stack" ); /* RM     mem(d+reg(s)) = reg(r) */
    emitRM("LDA", sp, -len, sp, "Prologue: Allocating memory for variables and arguments");
+   pc("* BTW THE FUNCTION NAME IS %s. Len is %d\n", funcName, len);
    // NOW JUMP TO THE FUNCTION THAT WAS JUST CALLED
    for (int i = 0; i < numFunctions; i++) {
       if (!strcmp(funcMap[i].funcName, tree->attr.name)) { 
@@ -202,8 +203,8 @@ static void genStmt(TreeNode *tree)
          /* now store value */
          char* scopeName = contextStack[contextLevel]->scopeName;
          loc = st_lookup_memloc(scopeName, tree->attr.name);
-         pc("*current scope name: %s\n",scopeName);
-         pc("*left variable scope: %s\n",loc.scopeName);
+         //pc("*current scope name: %s\n",scopeName);
+         //pc("*left variable scope: %s\n",loc.scopeName);
          if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
             emitRM("ST", ac, loc.memloc, gp, "assign: store to global variable");
          } else {
@@ -217,8 +218,8 @@ static void genStmt(TreeNode *tree)
 
          char* scopeName = contextStack[contextLevel]->scopeName;
          loc = st_lookup_memloc(scopeName, tree->attr.name); // returns beginning of array loc
-         pc("*current scope name: %s\n",scopeName);
-         pc("*left array variable scope: %s\n",loc.scopeName);
+         //pc("*current scope name: %s\n",scopeName);
+         //pc("*left array variable scope: %s\n",loc.scopeName);
          //if (loc.isParam == 1) {
          //   pc("* Now we have a param, gentlemen\n");
          //} else if (loc.idType == ArrayK) {
@@ -251,7 +252,7 @@ static void genStmt(TreeNode *tree)
       if (TraceCode)
          emitComment("<- assign");
       break; /* assign_k */
-      
+
    case ReturnK:
       if (tree->child[0] != NULL)
       {
@@ -294,8 +295,8 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
       scopeName = contextStack[contextLevel]->scopeName;
       loc = st_lookup_memloc(scopeName, tree->attr.name);
 
-      pc("*current scope name: %s\n",scopeName);
-      pc("*right variable scope: %s\n",loc.scopeName);
+      //pc("*current scope name: %s\n",scopeName);
+      //pc("*right variable scope: %s\n",loc.scopeName);
       if (!useAddress) {
          if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
             // escopo global, offset de gp
@@ -336,38 +337,38 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
          emitRO("ADD", ac, ac, ac1, "op +");
          break;
       case MINUS:
-         emitRO("SUB", ac, ac, ac1, "op -");
+         emitRO("SUB", ac, ac1, ac, "op -");
          break;
       case TIMES:
          emitRO("MUL", ac, ac, ac1, "op *");
          break;
       case OVER:
-         emitRO("DIV", ac, ac, ac1, "op /");
+         emitRO("DIV", ac, ac1, ac, "op /");
          break;
       case LT:
-         emitRO("SUB", ac, ac, ac1, "op <");
-         emitRM("JLT", ac, 2, PC, "br if true");
-         emitRM("LDC", ac, 0, ac1, "false case");
-         emitRM("LDA", PC, 1, PC, "unconditional jmp");
-         emitRM("LDC", ac, 1, ac1, "true case");
-         break;
-      case LTE:
-         emitRO("SUB", ac, ac, ac1, "op <");
-         emitRM("JLE", ac, 2, PC, "br if true");
-         emitRM("LDC", ac, 0, ac1, "false case");
-         emitRM("LDA", PC, 1, PC, "unconditional jmp");
-         emitRM("LDC", ac, 1, ac1, "true case");
-         break;
-      case GT:
          emitRO("SUB", ac, ac, ac1, "op <");
          emitRM("JGT", ac, 2, PC, "br if true");
          emitRM("LDC", ac, 0, ac1, "false case");
          emitRM("LDA", PC, 1, PC, "unconditional jmp");
          emitRM("LDC", ac, 1, ac1, "true case");
          break;
-      case GTE:
+      case LTE:
          emitRO("SUB", ac, ac, ac1, "op <");
          emitRM("JGE", ac, 2, PC, "br if true");
+         emitRM("LDC", ac, 0, ac1, "false case");
+         emitRM("LDA", PC, 1, PC, "unconditional jmp");
+         emitRM("LDC", ac, 1, ac1, "true case");
+         break;
+      case GT:
+         emitRO("SUB", ac, ac, ac1, "op <");
+         emitRM("JLT", ac, 2, PC, "br if true");
+         emitRM("LDC", ac, 0, ac1, "false case");
+         emitRM("LDA", PC, 1, PC, "unconditional jmp");
+         emitRM("LDC", ac, 1, ac1, "true case");
+         break;
+      case GTE:
+         emitRO("SUB", ac, ac, ac1, "op <");
+         emitRM("JLE", ac, 2, PC, "br if true");
          emitRM("LDC", ac, 0, ac1, "false case");
          emitRM("LDA", PC, 1, PC, "unconditional jmp");
          emitRM("LDC", ac, 1, ac1, "true case");
@@ -400,8 +401,8 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
 
       scopeName = contextStack[contextLevel]->scopeName;
       loc = st_lookup_memloc(scopeName, tree->attr.name);
-      pc("*current scope name: %s\n",scopeName);
-      pc("*right variable scope: %s\n",loc.scopeName);
+      //pc("*current scope name: %s\n",scopeName);
+      //pc("*right variable scope: %s\n",loc.scopeName);
       if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
          // global array. we want mem[gp + loc + index]. at this point ac has index
          emitRO("ADD", ac, ac, gp, "ac = index + gp"); // ac = index + gp 
@@ -549,6 +550,8 @@ void codeGen(TreeNode *syntaxTree)
    emitComment("Standard prelude:");
    emitRM("LD", mp, 0, ac, "load maxaddress from location 0");
    emitRM("ST", ac, 0, ac, "clear location 0");
+   // move stack pointer to mp
+   emitRM("LDA",sp,0,mp, "Pointing sp to top of memory");
    emitComment("End of standard prelude.");
    /* generate code for TINY program */
    cGen(syntaxTree);
