@@ -375,25 +375,26 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
          emitRM("LDC", ac, 1, ac1, "true case");
          break;
       case LTE:
-         emitRO("SUB", ac, ac, ac1, "op <");
+         emitRO("SUB", ac, ac, ac1, "op <=");
          emitRM("JGE", ac, 2, PC, "br if true");
          emitRM("LDC", ac, 0, ac1, "false case");
          emitRM("LDA", PC, 1, PC, "unconditional jmp");
          emitRM("LDC", ac, 1, ac1, "true case");
          break;
       case GT:
-         emitRO("SUB", ac, ac, ac1, "op <");
+         emitRO("SUB", ac, ac, ac1, "op >");
          emitRM("JLT", ac, 2, PC, "br if true");
          emitRM("LDC", ac, 0, ac1, "false case");
          emitRM("LDA", PC, 1, PC, "unconditional jmp");
          emitRM("LDC", ac, 1, ac1, "true case");
          break;
       case GTE:
-         emitRO("SUB", ac, ac, ac1, "op <");
+         emitRO("SUB", ac, ac, ac1, "op >=");
          emitRM("JLE", ac, 2, PC, "br if true");
          emitRM("LDC", ac, 0, ac1, "false case");
          emitRM("LDA", PC, 1, PC, "unconditional jmp");
          emitRM("LDC", ac, 1, ac1, "true case");
+         break;
       case EQ:
          emitRO("SUB", ac, ac, ac1, "op ==");
          emitRM("JEQ", ac, 2, PC, "br if true");
@@ -402,7 +403,7 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
          emitRM("LDC", ac, 1, ac1, "true case");
          break;
       case DIFF:
-         emitRO("SUB", ac, ac, ac1, "op ==");
+         emitRO("SUB", ac, ac, ac1, "op !=");
          emitRM("JNE", ac, 2, PC, "br if true");
          emitRM("LDC", ac, 0, ac1, "false case");
          emitRM("LDA", PC, 1, PC, "unconditional jmp");
