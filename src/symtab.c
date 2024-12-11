@@ -229,6 +229,7 @@ ScopeMemLock st_lookup_memloc(char *scope, char *name)
     if (l != NULL){
       sc.memloc = l->memloc;
       sc.scopeName = s->scopeName;
+      sc.idType = l->idType;
       return sc;
     }
     // if(isSameScope) {

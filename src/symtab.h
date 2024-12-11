@@ -31,6 +31,7 @@ typedef struct ScopeBucketListRec *ScopeBucketList;
 typedef struct ScopeMemLock {
   int memloc;
   char* scopeName;
+  DeclKind idType;
 } ScopeMemLock;
 // I need to insert: lookup on scope and insert on scope
 // I need to use: lookup on all parent scopes and insert line on first found

@@ -12,5 +12,6 @@
  * file by traversal of the syntax tree. 
  */
 void codeGen(TreeNode * syntaxTree);
+void genExp(TreeNode *tree, int useAddress);
 
 #endif

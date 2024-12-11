@@ -1,8 +1,9 @@
-int x;
+int teste(int a) {
+    int b;
+    b = 1;
+    a = a + b;
+}
 
 void main(void) {
-    int y[10];
-    x = 1;
-    
-    y[5] = x;
+    teste(2);
 }
