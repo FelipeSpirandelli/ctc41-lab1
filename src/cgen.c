@@ -12,7 +12,7 @@
 #include "code.h"
 #include "cgen.h"
 #include "analyze.h"
-
+#include <string.h>
 #define MAX_FUNCTIONS 20
 
 typedef struct FunctionNameToStartAddress {
@@ -31,15 +31,22 @@ static int isFirstFunction = 1;  // flag to help place the jump to main in the c
 static int numFunctions = 0;
 FunctionNameToStartAddress funcMap[MAX_FUNCTIONS];
 
-int getSizeOfVarsByName(char* name) {
-   for (int i = 0; i < numFunctions; i++) {
-      if (!strcmp(funcMap[i].funcName, name)) {
-         // achou
-         return funcMap[i].sizeOfVars;
-      }
-   }
-   pc("Could not find registered function with name %s\n", name);
-   return -1;
+int getSizeOfVarsByName(char *name) {
+    if (!name) {
+        pc("Error: Function name is NULL.\n");
+        return -1;
+    }
+
+    for (int i = 0; i < numFunctions; i++) {
+        // Check if 'name' matches the initial substring of 'funcMap[i].funcName'
+        if (strncmp(funcMap[i].funcName, name, strlen(funcMap[i].funcName)) == 0) {
+            return funcMap[i].sizeOfVars; // Found a match
+        }
+    }
+
+    // If no match is found
+    pc("Could not find registered function with name matching %s\n", name);
+    return -1;
 }
 // FOR TESTING
 #define INITIAL_SP 100
@@ -281,7 +288,7 @@ static void genStmt(TreeNode *tree)
       break;
 
    case BlockK:
-      // TODO: do something with scope
+      cGen(tree->child[0]);
    default:
       break;
    }
