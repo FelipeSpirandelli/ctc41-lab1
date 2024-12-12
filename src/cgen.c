@@ -31,6 +31,21 @@ static int isFirstFunction = 1;  // flag to help place the jump to main in the c
 static int numFunctions = 0;
 FunctionNameToStartAddress funcMap[MAX_FUNCTIONS];
 
+char* getScopeByName(char* name) {
+       for (int i = 0; i < numFunctions; i++) {
+        // Check if 'name' matches the initial substring of 'funcMap[i].funcName'
+        if (strncmp(funcMap[i].funcName, name, strlen(funcMap[i].funcName)) == 0) {
+            if (!strcmp(funcMap[i].funcName, "sort")) {
+               pc("HAHA, FOUND SORT\n");
+            }
+            return funcMap[i].funcName; // Found a match
+        }
+    }
+
+    // If no match is found
+    pc("Could not find registered function with name matching %s\n", name);
+    return "";
+}
 int getSizeOfVarsByName(char *name) {
     if (!name) {
         pc("Error: Function name is NULL.\n");
@@ -99,8 +114,11 @@ static void genPrologue(TreeNode * tree, char* funcName) {
          // check if is an array passed by reference
          emitComment("ID kind node found");
          scopeName = contextStack[contextLevel]->scopeName;
-         loc = st_lookup_memloc(scopeName, tree->attr.name);
-         if (loc.idType == ArrayK) {
+         //char *actualScope = getScopeByName(currentArg->attr.name);
+         loc = st_lookup_memloc(scopeName, currentArg->attr.name);
+         // pc("Scope name is %s, idType is %d, loc scope is %s. variable is %s", scopeName, loc.idType, loc.scopeName, currentArg->attr.name);
+         if (loc.idType == ArrayK && !strcmp(loc.scopeName, GLOBAL_SCOPE)) {
+            pc("* Array parameter detected. Pass by reference\n");
             // array passed by reference
             genExp(currentArg, 1);
          } else {
@@ -250,8 +268,8 @@ static void genStmt(TreeNode *tree)
          //}
          if (!strcmp(loc.scopeName, GLOBAL_SCOPE)) {
             // right now, ac has the index, but we want it to be loc + idx, base gp
-            emitRM("LDA", ac, loc.memloc, ac, "Loading relative global array index address into ac");
-            emitRM("LDA", ac, 0, gp, "Loading absolute index address");
+            emitRM("LDA", ac, loc.memloc, ac, "Loading relative global array index address into ac"); //ac = ac + memloc
+            emitRO("ADD", ac, ac, gp, "adding to gp");
             emitRM("ST", ac1, 0, ac, "assign: store to global array"); /* RM     mem(d+reg(s)) = reg(r) */
          } else {
             // IF ARRAY AND PARAM, WE MUST FIRST GET ITS TRUE POSITION mem[reg(fp)+FP_LOCALS_OFFSET-loc] has the address
@@ -349,12 +367,17 @@ void genExp(TreeNode *tree, int useAddress) // useAddress is used on activation 
       /* gen code to push left operand */
       //emitRM("ST", ac, tmpOffset--, mp, "op: push left");
       emitRM("LDA",ac1,0,ac,"Saving temporary value on ac1");
+      emitRM("ST", ac1, 0, sp, "Temporary store on stack"); // now we can use ac1 again
+      emitRM("LDA", sp, -1, sp, "Decrement sp");
       /* gen code for ac = right operand */
       cGen(p2);
+      emitRM("LDA", sp, +1, sp, "Increment sp again");
+      emitRM("LD", ac1,0,sp, "Recovering value on ac1"); // Retrieve the value on ac1
       /* now load left operand */
       //emitRM("LD", ac1, ++tmpOffset, mp, "op: load left");
       switch (tree->attr.op)
       {
+      // FOR + - * / storing the left value on ac1 is not enough, since they can combine. We can store the left side on stack and retrieve it after the code of p2
       case PLUS:
          emitRO("ADD", ac, ac, ac1, "op +");
          break;
